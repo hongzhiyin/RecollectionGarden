@@ -102,7 +102,7 @@ Mac 使用 NSSplitView + WKWebView；Windows 使用 SplitContainer + WebView2。
 
 ### AI 客户端接入
 
-- DreamEdge：现有 Electron/React 页面依赖 ChatBridge IPC。建议新增本地网页宿主与 ChatBridge 的 HTTP/WebSocket 适配，复用现有会话、流式消息和授权界面；在 DreamEdge 主进程注册阅读工具适配。阅读器只加载该网页，不持有模型凭据或执行聊天循环。该适配尚未实施。
+- DreamEdge：已提供本机 HTTP/SSE 网页入口，复用现有会话、流式消息、授权界面和 Pi 工具执行。主进程通过已安装 CLI 操作明确绑定的阅读窗口；阅读器只展示网页，不持有模型凭据或执行聊天循环。
 - ChatGPT 网页：通过自定义 MCP 连接工具，可使用公网 HTTPS 或 Secure MCP Tunnel；需单独配置账户权限和工具连接。[官方连接说明](https://developers.openai.com/plugins/deploy/connect-chatgpt)
 - Claude 网页：远程 MCP 连接从 Anthropic 云端发起；本机 stdio MCP 属于桌面客户端的另一种连接方式。[官方连接说明](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)
 
@@ -114,3 +114,12 @@ Mac 使用 NSSplitView + WKWebView；Windows 使用 SplitContainer + WebView2。
 2026-10-16。阅读期间隐藏根页面滚动条，避免 Windows 非覆盖式滚动条占用内容宽度；关闭阅读器后自动恢复书架滚动。全窗口与阅读位置六项针对性回归通过，Mac、Windows x64 / ARM64 构建通过，Windows x64 原生全窗口、分屏展开与收起、CLI/MCP 验收通过。
 
 [跨平台验收记录](https://github.com/hongzhiyin/RecollectionGarden/actions/runs/38780890288)。本机已更新至 0.7.1，两本书和原有阅读进度保留。
+
+
+## DreamEdge 真实对话联调
+
+2026-10-16，Mac 原生右侧网页 `http://127.0.0.1:4340`。DreamEdge 桌面菜单启用网页版并显示一次性配对码，在右侧配对后，为当前对话明确选择阅读窗口与书籍。
+
+真实 DeepSeek 的 4 轮对话、13 次工具调用全部成功。文本 PDF 第 96 页读取、引用创建和精确高亮通过；临时查看期间主进度保留在第 97 页，返回后恢复第 97 页。唯一的“DreamEdge 联调验收”摘录笔记创建、批准编辑和读回通过，版本 1 → 2，原文来源不变。网页刷新、收起重开后会话和绑定恢复，无重复写入。
+
+原扫描书第 106 页进度保留。DreamEdge 原有 3 个会话、7 条消息内容保留，验收新增一个独立对话和一条标记笔记。两个应用保持独立运行；DreamEdge 重启需重新启用网页并配对，阅读器重启需重新绑定窗口。
