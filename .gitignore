@@ -19,6 +19,6 @@ docs/*acceptance.json
 
 # Native desktop build output
 **/bin/
-!bin/
-!bin/recollection-garden.mjs
+!/bin/
+!/bin/recollection-garden.mjs
 **/obj/

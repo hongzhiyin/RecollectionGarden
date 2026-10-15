@@ -1,7 +1,10 @@
 import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 
-const dataDir = process.env.RG_DESKTOP_DATA_DIR ?? resolve(homedir(), 'Library/Application Support/RecollectionGarden/Desktop');
+const defaultDataDir = process.platform === 'win32'
+  ? resolve(process.env.LOCALAPPDATA ?? resolve(homedir(), 'AppData/Local'), 'RecollectionGarden/Desktop')
+  : resolve(homedir(), 'Library/Application Support/RecollectionGarden/Desktop');
+const dataDir = process.env.RG_DESKTOP_DATA_DIR ?? defaultDataDir;
 process.env.RG_BRIDGE_CONFIG ??= resolve(dataDir, 'bridge.json');
 const mode = process.argv[2] ?? 'serve';
 if (mode === 'serve') {

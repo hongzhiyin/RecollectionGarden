@@ -2,6 +2,7 @@ import { cp, mkdir, writeFile, readFile, rm, readdir, realpath } from 'node:fs/p
 import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stageDesktopPayload } from './desktop-payload.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const run = (command, args, options = {}) => execFileSync(command, args, { cwd: root, stdio: 'inherit', ...options });
@@ -9,37 +10,11 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') throw new Error('
 const version = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8')).version;
 const release = resolve(root, 'releases');
 const bundle = resolve(release, '流光忆庭.app'), resources = resolve(bundle, 'Contents/Resources');
-const app = resolve(resources, 'app'), deps = resolve(root, '.runtime/desktop-deps');
-await mkdir(deps, { recursive: true });
-for (const file of ['package.json', 'package-lock.json']) await cp(resolve(root, file), resolve(deps, file));
-run('npm', ['ci', '--offline', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--prefix', deps]);
+const app = resolve(resources, 'app');
 await rm(bundle, { recursive: true, force: true });
-await mkdir(app, { recursive: true }); await mkdir(resolve(bundle, 'Contents/MacOS'), { recursive: true });
+await mkdir(resolve(bundle, 'Contents/MacOS'), { recursive: true });
 await mkdir(resolve(resources, 'runtime'), { recursive: true });
-for (const folder of ['dist', 'bridge', 'bin', 'desktop/runtime', 'skills/recollection-garden-reading']) {
-  await cp(resolve(root, folder), resolve(app, folder), { recursive: true });
-}
-for (const file of ['package.json', 'src/external/protocol.ts', 'src/citations/schema.ts',
-  'src/notes/protocol.ts', 'src/notes/discoveryProtocol.ts']) {
-  await mkdir(dirname(resolve(app, file)), { recursive: true }); await cp(resolve(root, file), resolve(app, file));
-}
-const bundledFrontend = new Set(['pdfjs-dist', 'react', 'react-dom', 'scheduler', 'dexie', '@napi-rs']);
-for (const name of await readdir(resolve(deps, 'node_modules'))) {
-  if (name === '.bin' || name === '.package-lock.json') continue;
-  if (bundledFrontend.has(name)) {
-    const folder = resolve(deps, 'node_modules', name);
-    if (!name.startsWith('@')) for (const file of await readdir(folder)) {
-      if (/^(license|licence|notice)/i.test(file)) {
-        await mkdir(resolve(resources, 'licenses', name), { recursive: true });
-        await cp(resolve(folder, file), resolve(resources, 'licenses', name, file), { recursive: true });
-      }
-    }
-  } else await cp(resolve(deps, 'node_modules', name), resolve(app, 'node_modules', name), { recursive: true, verbatimSymlinks: true });
-}
-const sourcePackage = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
-await writeFile(resolve(app, 'package.json'), JSON.stringify({ name: sourcePackage.name, version, type: 'module',
-  private: true, engines: sourcePackage.engines, dependencies: Object.fromEntries(['@modelcontextprotocol/sdk','ws','zod']
-    .map(name => [name, sourcePackage.dependencies[name]])) }, null, 2));
+await stageDesktopPayload(app, { offline: true });
 await cp(process.execPath, resolve(resources, 'runtime/node'));
 const nodeHome = dirname(dirname(process.execPath));
 await cp(resolve(nodeHome, 'LICENSE'), resolve(resources, 'runtime/Node-LICENSE'));

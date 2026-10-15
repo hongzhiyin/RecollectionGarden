@@ -1,0 +1,78 @@
+name: Windows Desktop
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['src/**', 'desktop/**', 'scripts/**', 'tests/**', 'package*.json', 'vite.config.ts', 'tsconfig.json', 'docs/windows*', '.github/workflows/windows-desktop.yml']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.22.2
+          cache: npm
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: 10.0.x
+      - run: npm ci
+      - run: npm test
+      - run: node --test tests/service/bridge.test.mjs tests/service/desktop.test.mjs tests/service/desktop-lifecycle.test.mjs
+      - run: npm run package:windows -- ${{ matrix.arch }}
+      - name: Install WebView2 runtime for native verification
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: |
+          $setup = Join-Path $env:RUNNER_TEMP 'MicrosoftEdgeWebview2Setup.exe'
+          Invoke-WebRequest 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile $setup
+          Start-Process $setup -ArgumentList '/silent /install' -Wait
+      - name: Verify native reader and packaged CLI/MCP
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          ./scripts/verify-windows.ps1 "releases/RecollectionGarden-$version-windows-x64"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always() && matrix.arch == 'x64'
+        with:
+          name: windows-native-verification
+          path: test-results/windows-native/
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-package-${{ matrix.arch }}
+          path: |
+            releases/*.zip
+            releases/*.zip.sha256
+          if-no-files-found: error
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: windows-package-*
+          merge-multiple: true
+          path: packages
+      - name: Publish Windows preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          tag="v${version}-preview.${GITHUB_RUN_NUMBER}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" packages/* --clobber
+          else
+            gh release create "$tag" packages/* --target "$GITHUB_SHA" --prerelease --title "Windows preview ${version} (${GITHUB_RUN_NUMBER})" --notes-file docs/windows-release-notes.md
+          fi
