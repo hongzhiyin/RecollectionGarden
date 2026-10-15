@@ -12,9 +12,13 @@ export async function verifyPackagedMcp(cli, title, reportPath) {
   assert.ok(process.env.RG_DESKTOP_DATA_DIR, 'Native smoke test requires its isolated data directory.');
   const transport = new StdioClientTransport({ command:cli, args:['mcp'], cwd:tmpdir(), stderr:'pipe',
     env:{ RG_DESKTOP_DATA_DIR:process.env.RG_DESKTOP_DATA_DIR } });
-  const call = async (name, input={}) => {
+  const invoke = async (name, input={}) => {
     const response = await client.callTool({ name, arguments:input });
     const result = JSON.parse(response.content.find(item=>item.type==='text').text);
+    return result;
+  };
+  const call = async (name, input={}) => {
+    const result = await invoke(name, input);
     assert.equal(result.ok, true, JSON.stringify(result.error)); return result.data;
   };
   try {
@@ -26,14 +30,18 @@ export async function verifyPackagedMcp(cli, title, reportPath) {
     const books = await call('rg_books_list', {sessionId,params:{}});
     const book = books.find(item=>item.title===title); assert.ok(book);
     await call('rg_reader_open', {sessionId,bookId:book.id,params:{}});
-    let session;
-    for (let attempt=0; attempt<100; attempt++) {
+    let session, context;
+    for (let attempt=0; attempt<150; attempt++) {
       session = (await call('rg_sessions_list')).find(item=>item.sessionId===sessionId);
-      if (session?.bookId===book.id && session.ready) break;
+      if (session?.bookId===book.id && session.ready) {
+        const result = await invoke('rg_context_get', {sessionId,bookId:book.id,contextVersion:session.contextVersion,params:{}});
+        if (result.ok) { context=result.data; break; }
+        assert.ok(['NOT_READY','STALE_CONTEXT'].includes(result.error?.code), JSON.stringify(result.error));
+      }
       await new Promise(done=>setTimeout(done,100));
     }
-    assert.equal(session.bookId,book.id); assert.equal(session.ready,true);
-    const input={sessionId,bookId:book.id,contextVersion:session.contextVersion};
+    assert.equal(session.bookId,book.id); assert.ok(context, 'PDF context did not become ready.');
+    const input={sessionId,bookId:book.id,contextVersion:context.contextVersion};
     const page=await call('rg_page_read',{...input,params:{page:1}});
     assert.ok(JSON.stringify(page).includes('Selecting original text'));
     const report={ok:true,tools:23,cliHelp:true,stdioMcp:true,bookListed:true,readerOpen:true,pageRead:true};

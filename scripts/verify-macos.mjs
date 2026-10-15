@@ -45,6 +45,10 @@ try {
   assert.ok(url, 'Packaged server readiness timed out: ' + errors);
   browser = await chromium.launch({ channel: 'chrome', headless: true });
   const page = await browser.newPage();
+  await page.route('**/assets/pdf.worker*.mjs', async route => {
+    await new Promise(done => setTimeout(done, 1000));
+    await route.continue();
+  });
   await page.goto(url);
   await page.getByTestId('pdf-input').setInputFiles({ name: 'macos-smoke.pdf', mimeType: 'application/pdf',
     buffer: await readFile('tests/fixtures/text-navigation.pdf') });
