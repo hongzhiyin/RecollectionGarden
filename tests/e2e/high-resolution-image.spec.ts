@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { PDFDocument, concatTransformationMatrix, drawObject, popGraphicsState, pushGraphicsState } from 'pdf-lib';
 import { ready } from './helpers';
-import { jump, saved } from './reader-helpers';
+import { jump, saved, storedProgress } from './reader-helpers';
 
 async function scannedPdf() {
   const pdf = await PDFDocument.create();
@@ -48,4 +48,50 @@ test('超过 1600 万像素的扫描页可显示、翻页和重开，画布仍�
   await page.getByRole('button', { name: '阅读 high-resolution-scan', exact: true }).click();
   await expect(page.getByTestId('page-indicator')).toContainText('第 2 / 2 页');
   await assertImage();
+});
+
+
+test('扫描页连续关闭重开及刷新后保持准确的双轴滚动位置', async ({ page }) => {
+  await ready(page);
+  await page.getByTestId('pdf-input').setInputFiles({ name: 'scan-position.pdf',
+    mimeType: 'application/pdf', buffer: await scannedPdf() });
+  const open = async () => {
+    await page.getByRole('button', { name: '阅读 scan-position', exact: true }).click();
+    await expect(page.getByText('此页没有可提取文字，暂不支持扫描区域选取。')).toBeVisible();
+    await saved(page);
+  };
+  const position = () => page.locator('.reader-viewport').evaluate(element => ({
+    x: element.scrollLeft, y: element.scrollTop,
+    width: element.scrollWidth, height: element.scrollHeight,
+  }));
+  await open(); await jump(page, '2');
+  for (const zoom of ['fit-width', '300']) {
+    await page.getByLabel('缩放', { exact: true }).selectOption(zoom);
+    await expect(page.getByText('此页没有可提取文字，暂不支持扫描区域选取。')).toBeVisible();
+    await saved(page);
+    await page.locator('.reader-viewport').evaluate(element => {
+      element.scrollLeft = (element.scrollWidth - element.clientWidth) * .6;
+      element.scrollTop = (element.scrollHeight - element.clientHeight) * .925;
+    });
+    const expected = await page.locator('.reader-viewport').evaluate(element => ({
+      x: element.scrollLeft / Math.max(1, element.scrollWidth - element.clientWidth),
+      y: element.scrollTop / Math.max(1, element.scrollHeight - element.clientHeight),
+    }));
+    await expect.poll(async () => (await storedProgress(page)).offsetX).toBe(expected.x);
+    await expect.poll(async () => (await storedProgress(page)).offsetY).toBe(expected.y);
+    await saved(page);
+    const before = await position();
+    const progress = await storedProgress(page);
+    for (let cycle = 0; cycle < 3; cycle++) {
+      await page.getByRole('button', { name: '关闭', exact: true }).click();
+      if (cycle === 2) await page.reload();
+      await open();
+      await expect(page.getByTestId('page-indicator')).toContainText('第 2 / 2 页');
+      await expect(page.getByLabel('缩放', { exact: true })).toHaveValue(zoom);
+      expect(await position()).toEqual(before);
+      const restored = await storedProgress(page);
+      expect(restored.offsetX).toBe(progress.offsetX);
+      expect(restored.offsetY).toBe(progress.offsetY);
+    }
+  }
 });

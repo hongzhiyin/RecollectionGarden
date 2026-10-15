@@ -20,6 +20,7 @@
 .outline-link { background: transparent; border: 0; border-radius: 6px; }
 .outline-link:hover, .outline-toggle:hover { background: #eeebe5; color: var(--accent); }
 .outline-group { color: var(--muted); }
+.reader-page-area { position: relative; display: flex; flex: 1; min-width: 0; min-height: 0; }
 .reader-viewport { position: relative; min-width: 0; min-height: 0; flex: 1; overflow: auto; background: #e9e6e0; overscroll-behavior: contain; }
 .reader-surface { width: max-content; min-width: 100%; min-height: 100%; padding: 24px; display: flex; justify-content: center; align-items: flex-start; }
 .reader-surface canvas { display: block; flex-shrink: 0; background: white; outline: 1px solid oklch(0 0 0 / .1); box-shadow: 0 5px 18px #22222216; }

@@ -71,6 +71,7 @@ test('扫描页不生成原文，旋转页文字可以选取并定位', async ({
   await page.getByRole('button', { name: '保存引用草稿', exact: true }).click();
   await page.getByRole('button', { name: '定位原文', exact: true }).click();
   await expect(page.getByText('已定位原文', { exact: true })).toBeVisible();
+  await previewReady(page); await textReady(page);
   const inside = await page.locator('.textLayer span').evaluateAll(nodes => nodes.every(node => {
     const r = node.getBoundingClientRect(), p = node.closest('.pdf-page')!.getBoundingClientRect();
     return r.left >= p.left - 2 && r.right <= p.right + 2 && r.top >= p.top - 2 && r.bottom <= p.bottom + 2;

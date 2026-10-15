@@ -16,7 +16,14 @@ test('文本提取失败不阻止原版阅读，重试可恢复选择', async ({
   await jump(page, '2'); await saved(page);
   await expect(page.getByText('文本提取失败，页面仍可阅读。')).toBeVisible();
   await expect(page.locator('.reader-surface canvas')).toHaveCSS('opacity', '1');
+  const geometry = () => page.locator('.reader-viewport').evaluate(element => ({
+    height: element.scrollHeight, width: element.scrollWidth, top: element.scrollTop, left: element.scrollLeft,
+  }));
+  const before = await geometry();
+  await page.getByText('查看文本错误详情', { exact: true }).click();
+  expect(await geometry()).toEqual(before);
   await page.getByRole('button', { name: '重试文本', exact: true }).click(); await textReady(page);
+  expect(await geometry()).toEqual(before);
   await selectText(page, 'Same phrase');
   await expect(page.getByLabel('选中原文', { exact: true })).toHaveText('Same phrase');
 });

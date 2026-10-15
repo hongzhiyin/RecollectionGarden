@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { TextLayer, type PDFDocumentProxy } from 'pdfjs-dist';
 import type { PagePaint } from './usePageRenderer';
 import { createAnchor, locateQuote } from '../citations/anchors';
@@ -7,8 +8,9 @@ import { indexText, rangeRects, selectedOffsets, type TextIndex } from './textIn
 import '../styles/text-layer.css';
 import { readTextContent } from './textContent';
 
-export function TextPage({ document: pdf, paint, active, bookId, assetHash, target, onSelect, onLocated }: {
+export function TextPage({ document: pdf, paint, active, bookId, assetHash, target, statusContainer, onSelect, onLocated }: {
   document?: PDFDocumentProxy; paint?: PagePaint; active: boolean; bookId: string; assetHash: string;
+  statusContainer: HTMLDivElement | null;
   target?: QuoteSource; onSelect: (source: QuoteSource | null) => void;
   onLocated: (message: string) => void;
 }) {
@@ -88,9 +90,9 @@ export function TextPage({ document: pdf, paint, active, bookId, assetHash, targ
     <div className="citation-highlights" aria-label="原文高亮" aria-hidden={!rects.length}>
       {active && rects.map((rect, i) => <span key={i} style={rect} />)}
     </div>
-    {status && active && <div className="text-layer-status" role="status">{status}
+    {status && active && statusContainer && createPortal(<div className="text-layer-status" role="status">{status}
       {status.includes('提取失败') && <button className="button text" onClick={() => setAttempt(value => value + 1)}>重试文本</button>}
       {failureDetail && <details><summary>查看文本错误详情</summary><p>{failureDetail}</p></details>}
-    </div>}
+    </div>, statusContainer)}
   </>;
 }

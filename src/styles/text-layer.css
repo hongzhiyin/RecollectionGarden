@@ -20,5 +20,7 @@
 .textLayer[data-main-rotation="270"] { transform: rotate(270deg) translateX(-100%); }
 .citation-highlights { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .citation-highlights span { position: absolute; background: #e6bc4160; outline: 1px solid #b7902d70; }
-.text-layer-status { position: sticky; bottom: 8px; left: 8px; width: max-content; max-width: 100%;
+/* Keep asynchronous text feedback outside the PDF scroll geometry. */
+.text-layer-status { position: absolute; bottom: 8px; left: 8px; width: max-content; max-width: calc(100% - 16px);
+  max-height: calc(100% - 16px); overflow: auto;
   padding: 6px 10px; border-radius: 6px; background: var(--paper); color: var(--muted); font-size: 12px; z-index: 3; }

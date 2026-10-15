@@ -34,6 +34,7 @@ export function Reader({ book, onClose, onProgress }: {
   const [outlineVisible, setOutlineVisible] = useState(true);
   const [closeError, setCloseError] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [statusContainer, setStatusContainer] = useState<HTMLDivElement | null>(null);
   const session = usePdfDocument(book.id);
   const noteEditor = useNoteEditor(book.id, async source => {
     if (!session.document) throw new BridgeError('NOT_READY', '来源 PDF 尚未打开。');
@@ -110,18 +111,20 @@ export function Reader({ book, onClose, onProgress }: {
     <div className="reader-layout">
       {outlineVisible && <OutlinePanel document={session.document} items={session.outline} loading={session.metadataLoading}
         error={session.outlineError} navigate={navigate} />}
-      <div ref={rendering.viewport} className="reader-viewport" aria-label="阅读页面" onScroll={rendering.onScroll}>
-        <div ref={rendering.surface} className="reader-surface">
-          <div className="pdf-page"><canvas ref={rendering.canvas} aria-label={book.title + ' 第 ' + view.page + ' 页'}
-            style={{ opacity: rendering.loading || !paintMatches || error ? 0 : 1 }} />
-            <TextPage document={session.document} paint={rendering.paint} active={!rendering.loading && paintMatches && !error}
-              bookId={book.id} assetHash={book.assetHash} target={references.target}
-              onSelect={source => { if (source) { setExternalVisible(false); setNotesVisible(false); } references.pick(source); }} onLocated={references.setMessage} />
+      <div className="reader-page-area" ref={setStatusContainer}>
+        <div ref={rendering.viewport} className="reader-viewport" aria-label="阅读页面" onScroll={rendering.onScroll}>
+          <div ref={rendering.surface} className="reader-surface">
+            <div className="pdf-page"><canvas ref={rendering.canvas} aria-label={book.title + ' 第 ' + view.page + ' 页'}
+              style={{ opacity: rendering.loading || !paintMatches || error ? 0 : 1 }} />
+              <TextPage document={session.document} paint={rendering.paint} active={!rendering.loading && paintMatches && !error}
+                bookId={book.id} assetHash={book.assetHash} target={references.target} statusContainer={statusContainer}
+                onSelect={source => { if (source) { setExternalVisible(false); setNotesVisible(false); } references.pick(source); }} onLocated={references.setMessage} />
+            </div>
           </div>
+          {(rendering.loading || !paintMatches) && !error && <p className="reader-overlay" role="status">正在显示页面</p>}
+          {error && <div className="reader-overlay"><p className="field-error" role="alert">{error}</p>
+            <button className="button secondary" onClick={session.error ? session.retry : rendering.retry}>重试页面</button></div>}
         </div>
-        {(rendering.loading || !paintMatches) && !error && <p className="reader-overlay" role="status">正在显示页面</p>}
-        {error && <div className="reader-overlay"><p className="field-error" role="alert">{error}</p>
-          <button className="button secondary" onClick={session.error ? session.retry : rendering.retry}>重试页面</button></div>}
       </div>
     </div>
     {notesVisible ? <NotesPanel state={noteEditor} page={view.page} canCreate={!!session.document}
