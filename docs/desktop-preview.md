@@ -1,6 +1,6 @@
 # macOS 桌面体验包
 
-V0.7.0，Apple Silicon / macOS 26 桌面体验构建。既有原生阅读能力已在 macOS 26.6.2 验收。原生 AppKit 独立窗口嵌入 WKWebView，随包携带 Node.js 和本地能力服务。
+V0.7.1，Apple Silicon / macOS 26 桌面体验构建。既有原生阅读能力已在 macOS 26.6.2 验收。原生 AppKit 独立窗口嵌入 WKWebView，随包携带 Node.js 和本地能力服务。
 
 WebKit 文本读取使用 ReadableStream.getReader 兼容路径，避免缺少异步迭代器时无法选取或定位原文。
 依据：[PDF.js 上游问题](https://github.com/mozilla/pdf.js/issues/21924)。已在实际桌面 WebKit 中验证原文读取、高亮和返回；没有用浏览器模拟结果代替桌面验收。
@@ -107,3 +107,10 @@ Mac 使用 NSSplitView + WKWebView；Windows 使用 SplitContainer + WebView2。
 - Claude 网页：远程 MCP 连接从 Anthropic 云端发起；本机 stdio MCP 属于桌面客户端的另一种连接方式。[官方连接说明](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)
 
 普通网页不能直接执行本机 CLI。Skill 提供工作方式，实际动作仍需 AI 客户端的工具执行器；选择具体客户端后配置对应适配与阅读会话绑定。
+
+
+## V0.7.1 Windows 全窗口兼容
+
+2026-10-16。阅读期间隐藏根页面滚动条，避免 Windows 非覆盖式滚动条占用内容宽度；关闭阅读器后自动恢复书架滚动。全窗口与阅读位置六项针对性回归通过，Mac、Windows x64 / ARM64 构建通过，Windows x64 原生全窗口、分屏展开与收起、CLI/MCP 验收通过。
+
+[跨平台验收记录](https://github.com/hongzhiyin/RecollectionGarden/actions/runs/38780890288)。本机已更新至 0.7.1，两本书和原有阅读进度保留。
