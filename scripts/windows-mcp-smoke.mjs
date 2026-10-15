@@ -10,7 +10,9 @@ const cli = resolve(folder, 'recollection-garden.exe');
 const help = JSON.parse(execFileSync(cli, ['help'], { encoding:'utf8', cwd:process.env.TEMP }));
 assert.equal(help.ok, true); assert.equal(help.data.operations.length, 23);
 const client = new Client({ name:'windows-native-smoke', version:'1.0.0' }, {capabilities:{}});
-const transport = new StdioClientTransport({ command:cli, args:['mcp'], cwd:process.env.TEMP, stderr:'pipe' });
+assert.ok(process.env.RG_DESKTOP_DATA_DIR, 'Native smoke test requires its isolated data directory.');
+const transport = new StdioClientTransport({ command:cli, args:['mcp'], cwd:process.env.TEMP, stderr:'pipe',
+  env:{ RG_DESKTOP_DATA_DIR:process.env.RG_DESKTOP_DATA_DIR } });
 const call = async (name, input={}) => {
   const response = await client.callTool({ name, arguments:input });
   const result = JSON.parse(response.content.find(item=>item.type==='text').text);
