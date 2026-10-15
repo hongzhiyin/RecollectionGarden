@@ -3,12 +3,14 @@
 #import "RuntimeHost.h"
 #import "WebDelegate.h"
 #import "SingleInstance.h"
+#import "ReaderWorkspace.h"
 
 @interface GardenApp : NSObject <NSApplicationDelegate, NSWindowDelegate>
 @property(strong) NSWindow *window;
 @property(strong) WKWebView *webView;
 @property(strong) WebDelegate *webDelegate;
 @property(strong) RuntimeHost *runtime;
+@property(strong) ReaderWorkspace *workspace;
 @property BOOL closing;
 @end
 static GardenApp *retainedDelegate;
@@ -39,7 +41,9 @@ static GardenApp *retainedDelegate;
     self.webView.allowsBackForwardNavigationGestures = NO;
     self.webDelegate = [WebDelegate new]; self.webDelegate.window = self.window;
     self.webView.UIDelegate = self.webDelegate; self.webView.navigationDelegate = self.webDelegate;
-    self.window.contentView = self.webView;
+    self.workspace = [[ReaderWorkspace alloc] initWithReader:self.webView];
+    [configuration.userContentController addScriptMessageHandler:self.workspace name:@"gardenDesktop"];
+    self.window.contentView = self.workspace.view;
     [self.window makeKeyAndOrderFront:nil]; [NSApp activateIgnoringOtherApps:YES];
     [self.webView loadHTMLString:@"<html><body style='background:#f5f3ee;font:16px -apple-system;padding:48px'>正在打开流光忆庭…</body></html>" baseURL:nil];
     self.runtime = [RuntimeHost new];

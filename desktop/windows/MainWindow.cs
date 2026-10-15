@@ -6,6 +6,7 @@ namespace RecollectionGarden;
 internal sealed class MainWindow : Form
 {
     private readonly WebView2 web = new() { Dock = DockStyle.Fill };
+    private readonly ReaderWorkspace workspace;
     private readonly RuntimeHost runtime = new();
     private readonly string[] arguments;
     private bool allowClose, closing;
@@ -14,7 +15,7 @@ internal sealed class MainWindow : Form
         arguments = args;
         Text = "流光忆庭 · Garden of Recollection";
         Size = new Size(1240, 860); MinimumSize = new Size(900, 620); StartPosition = FormStartPosition.CenterScreen;
-        Controls.Add(web); Shown += async (_, _) => await StartAsync();
+        workspace = new ReaderWorkspace(web); Controls.Add(workspace); Shown += async (_, _) => await StartAsync();
         FormClosing += OnClosing;
         FormClosed += (_, _) => { web.Dispose(); runtime.Dispose(); };
     }
@@ -27,7 +28,7 @@ internal sealed class MainWindow : Form
             var environment = await CoreWebView2Environment.CreateAsync(null, Path.Combine(DesktopPaths.DataRoot, "WebView2"));
             await web.EnsureCoreWebView2Async(environment);
             web.CoreWebView2.Settings.AreDevToolsEnabled = false;
-            web.CoreWebView2.Settings.IsWebMessageEnabled = false;
+            workspace.Attach();
             web.CoreWebView2.NavigationStarting += (_, e) => e.Cancel = !Allowed(e.Uri);
             web.CoreWebView2.NewWindowRequested += (_, e) => e.Handled = true;
             web.CoreWebView2.DownloadStarting += OnDownload;

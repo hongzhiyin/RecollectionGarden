@@ -4,11 +4,11 @@ import { MAX_ZOOM, MIN_ZOOM, parsePage } from './navigation';
 import { Icon } from '../ui/Icon';
 
 export function ReaderToolbar({ page, total, label, zoom, scalePercent, ready, outlineVisible,
-  navigate, setZoom, toggleOutline, citations, toggleCitations, toggleExternal, toggleNotes }: {
+  navigate, setZoom, toggleOutline, citations, toggleCitations, toggleExternal, toggleNotes, toggleMessages, externalOpen }: {
   page: number; total: number; label?: string; zoom: ReaderZoom; scalePercent: number; ready: boolean;
   outlineVisible: boolean; navigate: (page: number) => void; setZoom: (zoom: ReaderZoom) => void; toggleOutline: () => void;
   citations: number; toggleCitations: () => void;
-  toggleExternal: () => void;
+  toggleExternal: () => void; externalOpen?: boolean; toggleMessages?: () => void;
   toggleNotes: () => void;
 }) {
   const [input, setInput] = useState(String(page));
@@ -34,7 +34,8 @@ export function ReaderToolbar({ page, total, label, zoom, scalePercent, ready, o
       {label && <span className="page-label">书内页码：{label}</span>}
     </div>
     <button className="button secondary" onClick={toggleCitations}>引用 {citations}</button>
-    <button className="button secondary" onClick={toggleExternal}>外部对话</button>
+    <button className="button secondary" aria-pressed={externalOpen} onClick={toggleExternal}>外部对话</button>
+    {toggleMessages && <button className="button secondary" onClick={toggleMessages}>回传记录</button>}
     <button className="button secondary" onClick={toggleNotes}>笔记</button>
     <div className="zoom-controls">
       <button className="icon-button" aria-label="缩小" disabled={!ready || percent <= MIN_ZOOM} onClick={() => setZoom({ mode: 'percent', percent: Math.max(MIN_ZOOM, percent - 25) })}>−</button>

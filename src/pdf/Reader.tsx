@@ -22,12 +22,14 @@ import { locateQuote } from '../citations/anchors';
 import type { NoteTarget } from '../notes/discoveryRepository';
 import { useBridge } from '../external/BridgeProvider';
 import '../styles/reader.css';
+import { useDesktopPanel } from '../external/useDesktopPanel';
 
 export function Reader({ book, onClose, onProgress }: {
   book: BookView; onClose: () => void; onProgress: () => Promise<void>;
 }) {
   const position = useReadingPosition(book);
   const bridge = useBridge();
+  const desktopPanel = useDesktopPanel();
   const { view, setView } = position;
   const [externalVisible, setExternalVisible] = useState(false);
   const [notesVisible, setNotesVisible] = useState(false);
@@ -100,13 +102,14 @@ export function Reader({ book, onClose, onProgress }: {
     && JSON.stringify(rendering.displayed.current?.zoom) === JSON.stringify(view.zoom);
   const status = session.error ? 'PDF 无法打开' : !session.document ? '正在打开 PDF'
     : rendering.error ? '页面显示失败' : rendering.loading || !paintMatches ? '正在显示页面' : position.preview ? '临时查看原文' : persistence.status;
-  return <><Modal title={book.title} onClose={() => noteEditor.request(() => void close())} wide>
+  return <><Modal title={book.title} onClose={() => noteEditor.request(() => void close())} wide screen>
     <ReaderToolbar page={view.page} total={session.document?.numPages ?? book.pages}
       label={session.labels[view.page - 1]} zoom={view.zoom} scalePercent={rendering.scalePercent}
       ready={!!session.document && !closing} outlineVisible={outlineVisible} navigate={navigate} setZoom={setZoom}
       toggleOutline={() => setOutlineVisible(value => !value)} citations={references.items.length}
       toggleCitations={() => { setNotesVisible(false); setExternalVisible(false); references.setVisible(value => !value); }}
-      toggleExternal={() => { setNotesVisible(false); setExternalVisible(value => !value); }}
+      externalOpen={desktopPanel.open} toggleMessages={desktopPanel.available ? () => { setNotesVisible(false); setExternalVisible(value => !value); } : undefined}
+      toggleExternal={() => { if (!desktopPanel.toggle()) { setNotesVisible(false); setExternalVisible(value => !value); } }}
       toggleNotes={() => { setExternalVisible(false); setNotesVisible(value => !value); }} />
     <div className="reader-layout">
       {outlineVisible && <OutlinePanel document={session.document} items={session.outline} loading={session.metadataLoading}

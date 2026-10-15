@@ -22,9 +22,9 @@ await stageDesktopPayload(app, { offline: true });
 await cp(process.execPath, resolve(resources, 'runtime/node'));
 const nodeHome = dirname(dirname(process.execPath));
 await cp(resolve(nodeHome, 'LICENSE'), resolve(resources, 'runtime/Node-LICENSE'));
-run('xcrun', ['clang', '-fobjc-arc', '-arch', 'arm64', '-mmacosx-version-min=13.0',
+run('xcrun', ['clang', '-fobjc-arc', '-arch', 'arm64', '-mmacosx-version-min=26.0',
   '-framework', 'AppKit', '-framework', 'WebKit', '-framework', 'UniformTypeIdentifiers',
-  'desktop/macos/main.m', 'desktop/macos/RuntimeHost.m', 'desktop/macos/WebDelegate.m', 'desktop/macos/SingleInstance.m',
+  'desktop/macos/main.m', 'desktop/macos/RuntimeHost.m', 'desktop/macos/WebDelegate.m', 'desktop/macos/SingleInstance.m', 'desktop/macos/ReaderWorkspace.m', 'desktop/macos/BrowserPane.m',
   '-o', resolve(bundle, 'Contents/MacOS/RecollectionGarden')]);
 const iconset = resolve(root, '.runtime/AppIcon.iconset'); await mkdir(iconset, { recursive: true });
 run('xcrun', ['clang', '-fobjc-arc', '-framework', 'AppKit', 'desktop/macos/icon.m', '-o', '.runtime/draw-app-icon']);

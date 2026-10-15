@@ -1,6 +1,6 @@
 # macOS 桌面体验包
 
-V0.6.6，Apple Silicon / macOS 26 桌面体验构建。既有原生阅读能力已在 macOS 26.6.2 验收。原生 AppKit 独立窗口嵌入 WKWebView，随包携带 Node.js 和本地能力服务。
+V0.7.0，Apple Silicon / macOS 26 桌面体验构建。既有原生阅读能力已在 macOS 26.6.2 验收。原生 AppKit 独立窗口嵌入 WKWebView，随包携带 Node.js 和本地能力服务。
 
 WebKit 文本读取使用 ReadableStream.getReader 兼容路径，避免缺少异步迭代器时无法选取或定位原文。
 依据：[PDF.js 上游问题](https://github.com/mozilla/pdf.js/issues/21924)。已在实际桌面 WebKit 中验证原文读取、高亮和返回；没有用浏览器模拟结果代替桌面验收。
@@ -88,3 +88,22 @@ Mac 自动验收挂载 DMG、复制 app 到另一目录、卸载原卷，检查�
 - 包内 CLI、全新 stdio MCP 的 23 项工具发现和当前对话原生 MCP 上下文读取正常。原书哈希、笔记、引用及消息保持不变。
 
 升级沿用原有相对位置；首次打开按移除提示占位后的滚动范围恢复，之后反复重开不再累积偏移。本机应用和数据已备份，个人 PDF、截图及数据快照仅保留在本地忽略目录。
+
+
+## V0.7.0 阅读工作区与网页面板
+
+2026-10-16。打开书籍后阅读界面铺满应用内容区，外层窗口大小不变。桌面“外部对话”打开右侧独立网页，拖动分隔线调整比例；“回传记录”保留原有外部消息、引用及保存笔记入口。
+
+右侧支持自定义 HTTP/HTTPS 网址、前进、后退、刷新、收起及系统浏览器打开。收起保留当前页面，重启保留站点与分屏比例；网站登录和存储由独立浏览配置管理，不共享阅读器数据。重启只恢复站点根地址，不持久化登录回调或查询参数。
+
+Mac 使用 NSSplitView + WKWebView；Windows 使用 SplitContainer + WebView2。仅左侧受信任本地页面可以请求打开或关闭面板，右侧没有原生工具桥。网页展示本身不授予阅读能力。弹出链接在当前面板打开；依赖弹窗或限制 WebView 的登录流程可能需要系统浏览器，系统浏览器登录不会自动同步回面板。
+
+验收：48 项浏览器端到端、56 项单元、类型检查、Mac 构建与签名检查通过；Windows 交叉编译通过，原生分屏验收已加入 CI。Mac 真机验证分隔线拖动、网页前进后退、面板收起恢复、网址与网页本地存储跨 app 重启恢复、右侧原生接口不可用，升级前后原书与第 106 页阅读进度一致。ChatGPT 未登录对话页面可加载；登录、真实对话和阅读工具联动未验证。
+
+### AI 客户端接入
+
+- DreamEdge：现有 Electron/React 页面依赖 ChatBridge IPC。建议新增本地网页宿主与 ChatBridge 的 HTTP/WebSocket 适配，复用现有会话、流式消息和授权界面；在 DreamEdge 主进程注册阅读工具适配。阅读器只加载该网页，不持有模型凭据或执行聊天循环。该适配尚未实施。
+- ChatGPT 网页：通过自定义 MCP 连接工具，可使用公网 HTTPS 或 Secure MCP Tunnel；需单独配置账户权限和工具连接。[官方连接说明](https://developers.openai.com/plugins/deploy/connect-chatgpt)
+- Claude 网页：远程 MCP 连接从 Anthropic 云端发起；本机 stdio MCP 属于桌面客户端的另一种连接方式。[官方连接说明](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)
+
+普通网页不能直接执行本机 CLI。Skill 提供工作方式，实际动作仍需 AI 客户端的工具执行器；选择具体客户端后配置对应适配与阅读会话绑定。

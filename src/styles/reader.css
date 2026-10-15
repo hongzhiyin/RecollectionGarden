@@ -30,3 +30,9 @@
 .reader-status .button { min-height: 32px; padding: 5px 8px; font-size: 12px; }
 @media (max-width: 780px) { .page-label { display: none; } .reader-controls { justify-content: flex-start; gap: 5px; padding: 8px; } .outline-panel { width: 190px; flex-basis: 190px; } }
 @media (max-width: 500px) { .outline-panel { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; background: var(--paper); width: 200px; box-shadow: 8px 0 24px #32283b12; } .reader-controls { font-size: 12px; } .page-controls { flex-wrap: wrap; gap: 4px; } .reader-surface { padding: 12px; } .reader-controls > .button { min-height: 40px; padding: 8px; } }
+
+.modal.reader-screen[open] { position: fixed; inset: 0; margin: 0; width: 100%; max-width: none;
+  height: 100dvh; max-height: none; border-radius: 0; box-shadow: none; }
+.reader-screen .modal-header { padding: 12px 18px; }
+.reader-screen .reader-controls { justify-content: flex-start; gap: 8px 12px; }
+.reader-screen .zoom-controls { margin-left: auto; }
