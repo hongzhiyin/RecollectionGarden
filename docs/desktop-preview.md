@@ -5,6 +5,7 @@ V0.6.5，Apple Silicon / macOS 26 桌面体验构建。既有原生阅读能力�
 WebKit 文本读取使用 ReadableStream.getReader 兼容路径，避免缺少异步迭代器时无法选取或定位原文。
 依据：[PDF.js 上游问题](https://github.com/mozilla/pdf.js/issues/21924)。已在实际桌面 WebKit 中验证原文读取、高亮和返回；没有用浏览器模拟结果代替桌面验收。
 
+更新前先使用 Command-Q 退出旧版。
 从 Releases 下载 `macos-arm64.dmg`，打开后将“流光忆庭.app”拖到应用程序，再双击打开。DMG 内只有应用，不附带其他安装文件。桌面版使用独立数据空间，首次重新导入 PDF；浏览器里的书籍、笔记和进度保留。
 关闭窗口后应用继续运行，可从程序坞重新打开；Command-Q 退出。退出时对未保存笔记提供确认，阅读位置恢复到最后成功保存处。
 导出 Markdown 使用系统保存面板。
@@ -68,3 +69,5 @@ Node.js 许可证与前端依赖许可随包保存，其他依赖保留各自 no
 Desktop Release workflow 使用标准 `macos-26` ARM64 runner 构建 Mac，Windows job 构建 x64 和 ARM64。同一提交的全部平台通过构建与各自验收后，才汇总到一个 Release。
 
 Mac 自动验收挂载 DMG、复制 app 到另一目录、卸载原卷，检查签名和包内 CLI 在无外部 Node 时可用，再用临时数据和端口验证生产阅读页面、像素、文本层、CLI/MCP 及服务退出。浏览器使用 runner 的 Chrome，此范围不等同于原生 AppKit/WKWebView 自动验收。验收结束清理临时数据，不输出配对令牌。
+
+0.6.5 统一构建与发布已通过；具体范围见 [跨平台验收](cross-platform-verification.md)。
