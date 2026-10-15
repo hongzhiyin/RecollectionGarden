@@ -1,0 +1,14 @@
+.bridge-connection { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
+.bridge-connection .button { min-height: 40px; padding: 6px 10px; font-size: 12px; }
+.bridge-session { color: var(--muted); font-size: 11px; }
+.conversation-panel { flex-shrink: 0; max-height: 38%; overflow: auto; padding: 12px 18px; border-top: 1px solid var(--line); }
+.conversation-empty { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.conversation-panel article { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.conversation-meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 11px; }
+.conversation-meta strong { color: var(--accent); }
+.conversation-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; margin: 8px 0; user-select: text; }
+.conversation-citations { display: flex; flex-wrap: wrap; gap: 6px; }
+.conversation-citations .button { min-height: 40px; font-size: 12px; padding: 6px 10px; }
+.conversation-incomplete { color: var(--muted); font-size: 11px; }
+.reading-preview { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 18px; border-top: 1px solid var(--line); font-size: 12px; }
+.reading-preview .button { min-height: 32px; padding: 5px 10px; font-size: 12px; }

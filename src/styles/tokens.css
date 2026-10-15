@@ -1,0 +1,37 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+  color: #2f2d35; background: #f6f4ef; font-synthesis: none; -webkit-font-smoothing: antialiased;
+  --ink: #2f2d35; --muted: #6c6573; --accent: #645778; --accent-dark: #514464;
+  --line: #e2dfd8; --paper: #fffefa; --error: #a74035; --radius: 14px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+button:focus-visible, input:focus-visible { outline: 3px solid #9781b4; outline-offset: 3px; }
+button, h1, h2, h3, p { margin: 0; }
+p { line-height: 1.7; text-wrap: pretty; }
+h1, h2 { text-wrap: balance; }
+button { -webkit-tap-highlight-color: transparent; }
+.button { min-height: 44px; padding: 10px 18px; border-radius: 9px; border: 0; display: inline-flex;
+  align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 550;
+  transition: background-color 150ms ease, transform 150ms ease, box-shadow 150ms ease; }
+.button:active:not(:disabled), .icon-button:active:not(:disabled) { transform: scale(.96); }
+.primary { color: white; background: var(--accent); box-shadow: 0 2px 4px #34254112; }
+.primary:hover:not(:disabled) { background: var(--accent-dark); box-shadow: 0 3px 10px #3425411c; }
+.secondary { color: var(--ink); background: #eeece6; }
+.secondary:hover:not(:disabled) { background: #e3e0d8; }
+.text { background: transparent; color: var(--accent); }
+.icon-button { width: 40px; height: 40px; flex: 0 0 auto; padding: 0; display: grid; place-items: center;
+  border: 0; border-radius: 8px; background: transparent; color: var(--muted); transition: background-color 150ms, transform 150ms; }
+.icon-button:hover { background: #ebe8e1; color: var(--ink); }
+.muted { color: var(--muted); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #aba6ae; display: inline-block; flex-shrink: 0; }
+.status-dot.active { background: #70896e; }
+.file-input { display: none; }
+.text-input { width: 100%; background: var(--paper); border: 1px solid #cfcac1; border-radius: 8px; padding: 12px 14px; color: var(--ink); }
+.field-label { display: block; font-size: 14px; margin-bottom: 8px; }
+.field-help { color: var(--muted); font-size: 13px; margin-top: 10px; }
+.field-error { color: var(--error); font-size: 14px; margin-top: 12px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0ms !important; animation: none !important; } }

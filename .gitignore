@@ -1,0 +1,24 @@
+node_modules/
+dist/
+public/pdf/
+test-results/
+playwright-report/
+.DS_Store
+.runtime/
+releases/
+
+# Local document drafts and acceptance evidence
+draft_*_folder/
+docs/screenshots/
+docs/*verification.json
+docs/*acceptance.json
+.env
+.env.*
+!.env.example
+*.log
+
+# Native desktop build output
+**/bin/
+!bin/
+!bin/recollection-garden.mjs
+**/obj/

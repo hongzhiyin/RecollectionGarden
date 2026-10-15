@@ -1,0 +1,31 @@
+.modal-wide[open] { display: flex; flex-direction: column; width: min(1360px, calc(100% - 24px)); height: calc(100dvh - 32px); max-height: calc(100dvh - 32px); overflow: hidden; }
+.modal-wide .modal-header { flex-shrink: 0; }
+.reader-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding: 10px 18px; border-bottom: 1px solid var(--line); flex-shrink: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+.page-controls, .zoom-controls, .page-jump { display: flex; align-items: center; gap: 8px; }
+.page-jump input { width: 54px; height: 40px; border: 1px solid var(--line); border-radius: 7px; padding: 7px; color: var(--ink); background: var(--paper); text-align: center; }
+.page-jump .button { min-height: 40px; padding: 8px 12px; }
+.zoom-controls select { min-height: 40px; border: 1px solid var(--line); background: var(--paper); border-radius: 7px; padding: 8px; color: var(--ink); }
+.page-label { color: var(--muted); font-size: 11px; }
+.navigation-error { width: 100%; color: var(--error); font-size: 12px; }
+.reader-layout { position: relative; min-height: 0; display: flex; flex: 1; overflow: hidden; }
+.outline-panel { width: 250px; flex: 0 0 250px; padding: 18px 12px; border-right: 1px solid var(--line); overflow: auto; }
+.outline-panel h3 { font-size: 14px; padding: 0 8px 14px; }
+.outline-note { color: var(--muted); font-size: 12px; padding: 0 8px; }
+.outline-tree, .outline-tree ul { list-style: none; margin: 0; padding: 0; }
+.outline-tree ul { margin-left: 12px; border-left: 1px solid var(--line); }
+.outline-row { display: flex; align-items: flex-start; margin: 2px 0; }
+.outline-toggle { flex: 0 0 30px; width: 30px; min-height: 40px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); }
+.outline-indent { flex: 0 0 10px; }
+.outline-link, .outline-group { text-align: left; flex: 1; min-width: 0; overflow-wrap: anywhere; padding: 10px 8px; font-size: 12px; line-height: 1.5; color: var(--ink); }
+.outline-link { background: transparent; border: 0; border-radius: 6px; }
+.outline-link:hover, .outline-toggle:hover { background: #eeebe5; color: var(--accent); }
+.outline-group { color: var(--muted); }
+.reader-viewport { position: relative; min-width: 0; min-height: 0; flex: 1; overflow: auto; background: #e9e6e0; overscroll-behavior: contain; }
+.reader-surface { width: max-content; min-width: 100%; min-height: 100%; padding: 24px; display: flex; justify-content: center; align-items: flex-start; }
+.reader-surface canvas { display: block; flex-shrink: 0; background: white; outline: 1px solid oklch(0 0 0 / .1); box-shadow: 0 5px 18px #22222216; }
+.reader-overlay { position: absolute; top: 40px; left: 0; right: 0; padding: 12px; text-align: center; color: var(--muted); font-size: 13px; }
+.reader-overlay .button { margin-top: 12px; }
+.reader-status { min-height: 44px; display: flex; flex-shrink: 0; align-items: center; flex-wrap: wrap; gap: 12px; padding: 6px 18px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+.reader-status .button { min-height: 32px; padding: 5px 8px; font-size: 12px; }
+@media (max-width: 780px) { .page-label { display: none; } .reader-controls { justify-content: flex-start; gap: 5px; padding: 8px; } .outline-panel { width: 190px; flex-basis: 190px; } }
+@media (max-width: 500px) { .outline-panel { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; background: var(--paper); width: 200px; box-shadow: 8px 0 24px #32283b12; } .reader-controls { font-size: 12px; } .page-controls { flex-wrap: wrap; gap: 4px; } .reader-surface { padding: 12px; } .reader-controls > .button { min-height: 40px; padding: 8px; } }
