@@ -9,7 +9,11 @@ const run = (command, args, options = {}) => execFileSync(command, args, { cwd: 
 if (process.platform !== 'darwin' || process.arch !== 'arm64') throw new Error('This packager targets macOS Apple Silicon.');
 const version = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8')).version;
 const release = resolve(root, 'releases');
-const bundle = resolve(release, '流光忆庭.app'), resources = resolve(bundle, 'Contents/Resources');
+const outputIndex = process.argv.indexOf('--output');
+if (outputIndex >= 0 && !process.argv[outputIndex + 1]) throw new Error('--output requires an app path.');
+const bundle = resolve(root, outputIndex >= 0 ? process.argv[outputIndex + 1] : 'releases/流光忆庭.app');
+if (!bundle.endsWith('.app')) throw new Error('Output must be an .app bundle.');
+const resources = resolve(bundle, 'Contents/Resources');
 const app = resolve(resources, 'app');
 await rm(bundle, { recursive: true, force: true });
 await mkdir(resolve(bundle, 'Contents/MacOS'), { recursive: true });
@@ -52,4 +56,8 @@ async function walk(folder, prefix = '') {
 }
 await walk(bundle);
 if (all.some(file => /(^|\/)(\.runtime|bridge\.json|\.env)(\/|$)/.test(file))) throw new Error('Private runtime files entered release.');
+if (process.argv.includes('--release')) {
+  const { archiveMacApp } = await import('./archive-macos.mjs');
+  console.log(JSON.stringify(await archiveMacApp(bundle, release, version)));
+}
 console.log(JSON.stringify({ bundle, version, files: all.length, personalDataIncluded: false }));

@@ -1,13 +1,14 @@
-name: Windows Desktop
+name: Desktop Release
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['src/**', 'desktop/**', 'scripts/**', 'tests/**', 'package*.json', 'vite.config.ts', 'tsconfig.json', 'docs/windows*', '.github/workflows/windows-desktop.yml']
+    paths: ['src/**', 'desktop/**', 'scripts/**', 'tests/**', 'package*.json', 'vite.config.ts', 'tsconfig.json', 'docs/*preview.md', 'docs/desktop-release-notes.md', '.github/workflows/desktop-release.yml']
 permissions:
   contents: read
 jobs:
-  build:
+  windows:
+    timeout-minutes: 20
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -43,18 +44,51 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always() && matrix.arch == 'x64'
         with:
+          retention-days: 7
           name: windows-native-verification
           path: test-results/windows-native/
           if-no-files-found: warn
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: windows-package-${{ matrix.arch }}
+          retention-days: 7
+          name: desktop-package-windows-${{ matrix.arch }}
           path: |
             releases/*.zip
             releases/*.zip.sha256
           if-no-files-found: error
+  macos:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.22.2
+          architecture: arm64
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run package:mac -- --release
+      - run: node --test tests/service/bridge.test.mjs tests/service/desktop.test.mjs tests/service/desktop-lifecycle.test.mjs
+      - name: Verify DMG, relocated bundle and packaged CLI/MCP
+        run: node scripts/verify-macos.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: macos-package-verification
+          path: test-results/macos-package/
+          if-no-files-found: warn
+          retention-days: 7
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: desktop-package-macos-arm64
+          path: |
+            releases/*.dmg
+            releases/*.dmg.sha256
+          if-no-files-found: error
+          retention-days: 7
   release:
-    needs: build
+    needs: [windows, macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -62,10 +96,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          pattern: windows-package-*
+          pattern: desktop-package-*
           merge-multiple: true
           path: packages
-      - name: Publish Windows preview
+      - name: Publish desktop preview
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -75,5 +109,5 @@ jobs:
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" packages/* --clobber
           else
-            gh release create "$tag" packages/* --target "$GITHUB_SHA" --prerelease --title "Windows preview ${version} (${GITHUB_RUN_NUMBER})" --notes-file docs/windows-release-notes.md
+            gh release create "$tag" packages/* --target "$GITHUB_SHA" --prerelease --title "流光忆庭 ${version} · Mac / Windows 体验版" --notes-file docs/desktop-release-notes.md
           fi

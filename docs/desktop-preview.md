@@ -1,11 +1,11 @@
 # macOS 桌面体验包
 
-V0.6.3，Apple Silicon / macOS 26 本机体验构建，已在 macOS 26.6.2 验收。原生 AppKit 独立窗口嵌入 WKWebView，随包携带 Node.js 和本地能力服务。
+V0.6.5，Apple Silicon / macOS 26 桌面体验构建。既有原生阅读能力已在 macOS 26.6.2 验收。原生 AppKit 独立窗口嵌入 WKWebView，随包携带 Node.js 和本地能力服务。
 
 WebKit 文本读取使用 ReadableStream.getReader 兼容路径，避免缺少异步迭代器时无法选取或定位原文。
 依据：[PDF.js 上游问题](https://github.com/mozilla/pdf.js/issues/21924)。已在实际桌面 WebKit 中验证原文读取、高亮和返回；没有用浏览器模拟结果代替桌面验收。
 
-双击“流光忆庭.app”打开。桌面版使用独立数据空间，首次重新导入 PDF；浏览器里的书籍、笔记和进度保留。
+从 Releases 下载 `macos-arm64.dmg`，打开后将“流光忆庭.app”拖到应用程序，再双击打开。DMG 内只有应用，不附带其他安装文件。桌面版使用独立数据空间，首次重新导入 PDF；浏览器里的书籍、笔记和进度保留。
 关闭窗口后应用继续运行，可从程序坞重新打开；Command-Q 退出。退出时对未保存笔记提供确认，阅读位置恢复到最后成功保存处。
 导出 Markdown 使用系统保存面板。
 
@@ -22,7 +22,7 @@ CLI：
 外部 AI 的 MCP command 指向“流光忆庭.app/Contents/MacOS/recollection-garden”的绝对路径，args 为 ["mcp"]。
 入口随应用移动；移动后更新 command 路径。本机 Codex 已配置为新目录中的桌面版入口，源码入口仍可单独用于开发环境。
 
-维护者打包：先 npm ci，再 npm run package:mac。直接输出 releases/流光忆庭.app，运行环境与 CLI/MCP 均内置。构建使用本机依赖缓存和 ad-hoc 签名，当前为本机体验分发。
+维护者打包：先 npm ci，再 npm run package:mac。直接输出 releases/流光忆庭.app，运行环境与 CLI/MCP 均内置。`npm run package:mac -- --release` 额外生成 DMG 和 SHA-256；`--output <路径.app>` 可指定独立输出以保留正在使用的 app。构建使用 ad-hoc 签名，尚未 Developer ID 签名或公证。
 Node.js 许可证与前端依赖许可随包保存，其他依赖保留各自 node_modules 许可证。
 
 ## V0.6.1 阅读能力验收
@@ -62,3 +62,9 @@ Node.js 许可证与前端依赖许可随包保存，其他依赖保留各自 no
 用户文件仅放在本地忽略的临时目录，未进入应用包。
 
 结果见 [扫描页验收摘要](desktop-scan-verification.json)。
+
+## 自动构建与统一发布
+
+Desktop Release workflow 使用标准 `macos-26` ARM64 runner 构建 Mac，Windows job 构建 x64 和 ARM64。同一提交的全部平台通过构建与各自验收后，才汇总到一个 Release。
+
+Mac 自动验收挂载 DMG、复制 app 到另一目录、卸载原卷，检查签名和包内 CLI 在无外部 Node 时可用，再用临时数据和端口验证生产阅读页面、像素、文本层、CLI/MCP 及服务退出。浏览器使用 runner 的 Chrome，此范围不等同于原生 AppKit/WKWebView 自动验收。验收结束清理临时数据，不输出配对令牌。

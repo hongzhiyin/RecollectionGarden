@@ -1,12 +1,12 @@
 # RecollectionGarden
 
-流光忆庭 / Garden of Recollection。V0.6.4 提供本地 PDF 阅读、引用、笔记、CLI/MCP 能力接口和外部对话展示，可打包为 Mac 与 Windows 桌面体验版。
+流光忆庭 / Garden of Recollection。V0.6.5 提供本地 PDF 阅读、引用、笔记、CLI/MCP 能力接口和外部对话展示，可打包为 Mac 与 Windows 桌面体验版。
 
 ## 运行
 
-Windows：在 [GitHub Releases](https://github.com/hongzhiyin/RecollectionGarden/releases) 下载对应架构的体验包，完整解压后运行 `RecollectionGarden.exe`；详见 [Windows 使用与打包](docs/windows-preview.md)。
+Mac / Windows：在 [GitHub Releases](https://github.com/hongzhiyin/RecollectionGarden/releases) 统一下载各平台体验包。Mac 选 `macos-arm64.dmg`，Windows 选对应架构 ZIP；详见 [Mac 使用与打包](docs/desktop-preview.md)和 [Windows 使用与打包](docs/windows-preview.md)。
 
-Mac 桌面体验版：`npm run package:mac` 生成独立 Apple Silicon `.app` 应用；使用方式及独立数据空间见 [桌面体验包](docs/desktop-preview.md)。
+Mac 桌面体验版：`npm run package:mac` 生成独立 Apple Silicon `.app`，加 `-- --release` 生成 DMG 和校验文件；使用方式及独立数据空间见 [桌面体验包](docs/desktop-preview.md)。
 
 需要 Node.js 22.18+；当前验收使用 22.22.2。CLI 和 MCP 直接使用 Node 的 TypeScript 类型剥离。
 
