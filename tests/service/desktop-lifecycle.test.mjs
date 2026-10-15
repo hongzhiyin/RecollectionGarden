@@ -18,11 +18,12 @@ test('桌面父进程断开后关闭服务，随后可以使用原端口重启',
     });
     children.push(child);
     child.exited = once(child, 'exit');
-    let output = ''; child.stdout.setEncoding('utf8'); child.stdout.on('data', chunk => { output += chunk; });
+    let output = '', errors = ''; child.stdout.setEncoding('utf8'); child.stdout.on('data', chunk => { output += chunk; });
+    child.stderr.setEncoding('utf8'); child.stderr.on('data', chunk => { errors += chunk; });
     for (let attempt = 0; attempt < 100; attempt++) {
       const match = output.match(/ready at (http:\/\/127\.0\.0\.1:(\d+))/);
       if (match) return { child, url: match[1], port: Number(match[2]) };
-      assert.equal(child.exitCode, null, 'Runtime exited before ready');
+      assert.equal(child.exitCode, null, 'Runtime exited before ready: ' + errors);
       await setTimeout(30);
     }
     throw new Error('Runtime did not become ready');
@@ -35,7 +36,8 @@ test('桌面父进程断开后关闭服务，随后可以使用原端口重启',
     await assert.rejects(fetch(first.url));
     const second = await launch(first.port);
     assert.equal((await (await fetch(second.url + '/__rg_experience')).json()).ready, true);
-    second.child.kill('SIGTERM');
+    if (process.platform === 'win32') second.child.stdin.end();
+    else second.child.kill('SIGTERM');
     assert.equal((await second.child.exited)[0], 0);
   } finally {
     for (const child of children) {
