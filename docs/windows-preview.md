@@ -32,5 +32,6 @@ npm run package:windows -- arm64
 ```
 
 GitHub Actions 流程用于构建两种架构并发布 ZIP 与 SHA-256；也支持维护者本机交叉构建后上传 Releases。
-本轮 Windows runner 已验证 PDF 导入、页面像素、可选文本层、CLI 输出与 23 项 MCP 工具发现。修正 MCP 隔离验收目录传递后，最新 Windows 重跑被账户账单/额度限制阻止；完整联调仍需 Windows 设备复核。ARM64 为交叉构建，需在真实 ARM64 设备上验收。
+公开仓库使用标准 GitHub 托管 runner。本轮 Windows runner 已通过 PDF 导入、页面像素、可选文本层、CLI 输出、23 项 MCP 工具发现，以及书架读取、打开书籍和原文读取。ARM64 为交叉构建，仍需真实 ARM64 设备验收。
+最新完整结果见 [跨平台验收](cross-platform-verification.md)。
 Windows 体验包尚未添加发布者代码签名。完整手动验收还应覆盖大尺寸扫描页、目录、页码跳转、缩放、笔记编辑、导出和退出重开。
