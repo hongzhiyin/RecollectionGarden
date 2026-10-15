@@ -6,5 +6,5 @@ Windows 桌面体验版：流光忆庭 / Garden of Recollection。
 - 首次导入 PDF。书架、笔记和阅读进度保存在当前设备，暂不跨设备同步。
 - 外部 AI 的 MCP command 指向 recollection-garden.exe，args 为 ["mcp"]。
 
-x64 已执行 Windows runner 原生 WebView2 与打包后 CLI/MCP 冒烟验收；ARM64 为交叉构建，仍需真实设备测试。包尚未添加发布者代码签名。
+Windows runner 已通过 x64 原生 WebView2、PDF 页面与文本层、CLI 输出和 23 项 MCP 工具发现。MCP 隔离验收配置修正后，最新完整联调重跑被 GitHub 账户账单/额度限制阻止；此 Release 使用本机交叉构建，请在 Windows 设备复核完整流程。ARM64 尚需真机测试。包尚未添加发布者代码签名。
 详见仓库 docs/windows-preview.md。每个 ZIP 都附 SHA-256。

@@ -31,6 +31,6 @@ npm run package:windows -- x64
 npm run package:windows -- arm64
 ```
 
-GitHub Actions 自动构建两种架构，并将 ZIP 和 SHA-256 发布到预发布 Release。
-x64 构建在 Windows runner 中运行原生 WebView2，验证 PDF 导入、页面像素、可选文本、CLI 及 23 项 MCP 工具。ARM64 进行交叉构建，需在真实 ARM64 设备上验收。
+GitHub Actions 流程用于构建两种架构并发布 ZIP 与 SHA-256；也支持维护者本机交叉构建后上传 Releases。
+本轮 Windows runner 已验证 PDF 导入、页面像素、可选文本层、CLI 输出与 23 项 MCP 工具发现。修正 MCP 隔离验收目录传递后，最新 Windows 重跑被账户账单/额度限制阻止；完整联调仍需 Windows 设备复核。ARM64 为交叉构建，需在真实 ARM64 设备上验收。
 Windows 体验包尚未添加发布者代码签名。完整手动验收还应覆盖大尺寸扫描页、目录、页码跳转、缩放、笔记编辑、导出和退出重开。
