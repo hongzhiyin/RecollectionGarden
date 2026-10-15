@@ -14,7 +14,8 @@ internal static class DesktopVerification
                 if (await web.ExecuteScriptAsync(expression) == "true") return;
                 await Task.Delay(100);
             }
-            throw new TimeoutException("桌面验收未通过：" + expression);
+            var layout = await web.ExecuteScriptAsync("JSON.stringify({width:innerWidth,height:innerHeight,clientWidth:document.documentElement.clientWidth,dpr:devicePixelRatio,reader:document.querySelector('.reader-screen')?.getBoundingClientRect().toJSON()})");
+            throw new TimeoutException("桌面验收未通过：" + expression + " Layout: " + layout);
         }
         await Wait("!!document.querySelector('[data-testid=pdf-input]')");
         var bytes = Convert.ToBase64String(await File.ReadAllBytesAsync(fixture));

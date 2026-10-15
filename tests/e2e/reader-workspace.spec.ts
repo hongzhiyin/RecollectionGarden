@@ -12,6 +12,8 @@ test('阅读器铺满内容区，桌面外部对话委托原生面板，关闭�
     } } } });
   });
   await openReader(page);
+  await page.evaluate(() => { document.body.style.minHeight = '300vh'; });
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
   const assertFullSize = async () => {
     const bounds = await page.getByRole('dialog').boundingBox();
     expect(bounds).toEqual({ x: 0, y: 0, ...page.viewportSize()! });

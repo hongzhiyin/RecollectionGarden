@@ -36,3 +36,5 @@
 .reader-screen .modal-header { padding: 12px 18px; }
 .reader-screen .reader-controls { justify-content: flex-start; gap: 8px 12px; }
 .reader-screen .zoom-controls { margin-left: auto; }
+
+:root:has(.reader-screen[open]) { overflow: hidden; }
