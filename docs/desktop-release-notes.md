@@ -5,7 +5,7 @@
 ## Windows 使用
 
 1. Intel / AMD 设备下载两份 `windows-x64.zip`；Windows on ARM 下载两份 `windows-arm64.zip`。两份分别是 RecollectionGarden 与 DreamEdge，均需完整解压。
-2. 运行 DreamEdge.exe，配置自己的模型服务。首次启动会在 `%APPDATA%\DreamEdge` 生成 `connection.local.json` 与 `credentials.local.json`；测试包不包含 API 密钥或个人会话。
+2. 运行一次 DreamEdge.exe，随后从应用菜单完全退出。按 Win+R 打开 `%APPDATA%\DreamEdge`：在 `credentials.local.json` 的 `deepseek` 字段填写自己的 Key；在 `connection.local.json` 核对服务地址、模型和 `credentialRef`。改用其他服务时需填写该服务支持的模型与协议配置。保存后重新运行 DreamEdge。当前通过这两个文件配置模型，尚无模型配置界面；已有文件不会被覆盖，测试包不包含 API 密钥或个人会话。
 3. 运行 RecollectionGarden.exe，导入并打开 PDF。在右侧“设置 → 更多连接操作 → 配置 AI”中选择 DreamEdge 解压目录的 `ai-entry.json`，确认启动器路径。
 4. 点击“连接”。首次在 DreamEdge 确认应用与当前书籍的 MCP 范围后，即可在嵌入界面询问当前页、读取目录或翻页。
 

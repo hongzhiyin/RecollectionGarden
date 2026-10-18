@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: hongzhiyin/DreamEdge
-          ref: 593ebf4ea155ed33e2369046fabd89daaf556e94
+          ref: ac2d7bb37307e9f98419425397a6ae6b31231d4f
           path: dreamedge
           persist-credentials: false
       - name: Build and test DreamEdge Windows launch
@@ -44,6 +44,12 @@ jobs:
       - name: Package paired DreamEdge
         working-directory: dreamedge
         run: node dist/scripts/package-application.js --arch ${{ matrix.arch }}
+      - name: Verify packaged DreamEdge desktop window
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: |
+          $env:DREAMEDGE_PACKAGE_EXECUTABLE = (Resolve-Path 'dreamedge/release/DreamEdge-win32-x64/DreamEdge.exe').Path
+          node --test dreamedge/dist/test/ui/windows-shell.test.js
       - name: Check Windows AI launcher boundaries
         if: matrix.arch == 'x64'
         run: dotnet run --project desktop/windows/tests/WindowsLaunchChecks.csproj
