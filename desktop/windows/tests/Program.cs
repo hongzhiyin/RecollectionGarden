@@ -18,7 +18,12 @@ var entry = ExternalAIEntry.Parse(json, AppContext.BaseDirectory);
 Check(entry.Command == executable, "Relative portable entry resolved incorrectly");
 Check(ExternalAIEntry.Parse(entry.Serialize(), AppContext.BaseDirectory) == entry || ExternalAIEntry.Parse(entry.Serialize(), AppContext.BaseDirectory).Command == entry.Command, "Saved entry changed");
 var context = new ReaderContext(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "中文书籍");
-var request = context.Request(executable);
+var request = context.Request(executable, AppContext.BaseDirectory);
+using (var scoped = JsonDocument.Parse(JsonSerializer.Serialize(request))) {
+    var declared = scoped.RootElement.GetProperty("mcp").GetProperty("transport").GetProperty("args").EnumerateArray().Select(value => value.GetString()).ToArray();
+    Check(declared.Contains(context.Window) && declared.Contains(context.Resource), "Reader scope was not bound");
+    Check(declared[^2] == "--data-dir" && declared[^1] == AppContext.BaseDirectory, "Explicit profile was not handed off");
+}
 var uri = await ExternalConversation.Launch(entry, request, CancellationToken.None);
 Check(uri.IsLoopback && uri.Fragment == "#fixture", "Valid embedded handoff rejected");
 await Reject(() => ExternalConversation.Launch(entry with { Args = ["fixture", "unsafe"] }, request, CancellationToken.None));

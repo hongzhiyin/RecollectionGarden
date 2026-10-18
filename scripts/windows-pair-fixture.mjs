@@ -52,7 +52,7 @@ await writeFile(join(aiProfile, 'credentials.local.json'), JSON.stringify({ fixt
 const cli = join(readerPackage, 'recollection-garden.exe');
 await writeFile(join(aiProfile, 'application-policies.json'), JSON.stringify({ format: 'ai-application-policies/v1', applications: [{
   applicationId: 'com.chihoyo.RecollectionGarden', profile: 'desktop-default', command: cli,
-  args: ['mcp', '--window', { context: 'window' }, '--book', { context: 'resource' }],
+  args: ['mcp', '--window', { context: 'window' }, '--book', { context: 'resource' }, '--data-dir', readerProfile],
   readTools: ['rg_context_get', 'rg_page_read', 'rg_outline_get'], interactionTools: ['rg_reader_navigate', 'rg_outline_navigate'],
   destination: { connectionId: config.id, protocol: config.protocol, baseUrl: new URL(baseUrl).href, model: config.model }
 }] }));

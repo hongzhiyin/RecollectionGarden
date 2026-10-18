@@ -31,7 +31,7 @@ internal sealed class ExternalConversation
         var entry = Entry ?? throw new InvalidOperationException("请先配置 AI 入口。");
         var mcp = Path.Combine(AppContext.BaseDirectory, "recollection-garden.exe");
         if (!File.Exists(mcp)) throw new InvalidOperationException("阅读器缺少 MCP 启动入口，请完整解压应用包。");
-        return await Launch(entry, context.Request(mcp), cancellationToken);
+        return await Launch(entry, context.Request(mcp, DesktopPaths.DataRoot), cancellationToken);
     }
     internal static async Task<Uri> Launch(ExternalAIEntry entry, object request, CancellationToken cancellationToken)
     {
