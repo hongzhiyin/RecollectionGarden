@@ -18,8 +18,9 @@
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)action
     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     NSURL *url = action.request.URL;
-    BOOL local = [url.scheme isEqual:@"http"] && [url.host isEqual:@"127.0.0.1"] && url.port.intValue == 4321;
-    BOOL blob = [url.absoluteString hasPrefix:@"blob:http://127.0.0.1:4321/"];
+    int port = [NSBundle.mainBundle.infoDictionary[@"RGVerificationProfile"] boolValue] ? 4331 : 4321;
+    BOOL local = [url.scheme isEqual:@"http"] && [url.host isEqual:@"127.0.0.1"] && url.port.intValue == port;
+    BOOL blob = [url.absoluteString hasPrefix:[NSString stringWithFormat:@"blob:http://127.0.0.1:%d/",port]];
     if (action.shouldPerformDownload && (local || blob)) decisionHandler(WKNavigationActionPolicyDownload);
     else decisionHandler(local || [url.absoluteString isEqual:@"about:blank"] ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
 }

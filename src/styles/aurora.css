@@ -1,0 +1,94 @@
+/* Reading workspace geometry and Aurora glass surfaces; base theme is shared by the entire app. */
+.reader-screen {
+  --ink: #263242; --muted: #737c8a; --accent: #53677f; --accent-dark: #40536a;
+  --line: #8d9aab22; --paper: #fff; --error: #b5504e;
+  color: var(--ink); color-scheme: light; font: 13px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;
+  background: var(--aurora-background);
+  -webkit-font-smoothing: antialiased;
+}
+.reader-screen .modal-header { min-height: 58px; padding: 10px 18px; gap: 18px; background: #ffffff60;
+  border-bottom: 1px solid #ffffffa6; backdrop-filter: blur(24px) saturate(1.25); }
+.reader-screen .modal-header h2 { font-family: inherit; line-height: 1.5; font-size: 12px; font-weight: 400; color: #737c8a;
+  flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.reader-brand { display: flex; align-items: center; gap: 12px; font-size: 15px; white-space: nowrap; }
+.reader-screen .button,.reader-screen .icon-button { min-height: 40px; border: 1px solid transparent; border-radius: 10px;
+  padding: 7px 11px; color: #515b69; background: transparent; box-shadow: none; font-size: 12px; font-weight: 400;
+  transition: background-color 140ms ease,color 140ms ease,box-shadow 140ms ease; }
+.reader-screen .icon-button { width: 40px; padding: 8px; }
+.reader-screen button:hover:not(:disabled) { background: #ffffffa6; color: #253448; box-shadow: inset 0 1px #ffffffb3; }
+.reader-screen button:focus-visible,.reader-screen summary:focus-visible,.reader-screen input:focus-visible,.reader-screen select:focus-visible { outline: 2px solid #53677f; outline-offset: 2px; }
+.reader-screen button[aria-pressed=true] { background: linear-gradient(130deg,#ffffffed,#eff5ff85); border-color: white; box-shadow: inset 0 1px white,0 2px 9px #6b7db526; }
+.aurora-columns { display: grid; flex: 1; min-height: 0; position: relative; }
+.aurora-reader { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.reader-screen .reader-controls { min-height: 56px; padding: 8px 13px; gap: 8px; font-size: 12px;
+  background: linear-gradient(110deg,#ffffff7a,#ffffff29); border-bottom: 1px solid #ffffff9c; backdrop-filter: blur(24px) saturate(1.25); }
+.reader-language { display: flex; gap: 10px; align-items: center; }
+.reader-language>span { padding: 7px 10px; border-radius: 9px; background: #ffffffa8; border: 1px solid #fff; }
+.reader-language button { border: 0; background: transparent; color: #818996; padding: 0; font-size: 11px; }
+.reader-screen .page-controls { gap: 2px; margin-left: auto; }
+.reader-screen .page-controls>span { font-size: 11px; white-space: nowrap; }
+.reader-screen .page-jump { gap: 2px; }
+.reader-screen .page-jump input { width: 42px; background: #ffffff70; border: 1px solid #ffffffb3; color: var(--ink); }
+.reader-screen .page-jump button { padding: 5px; }
+.reader-screen .zoom-controls { gap: 2px; margin-left: auto; }
+.reader-screen .zoom-controls select { min-height: 40px; border: 1px solid #ffffffb3; background: #ffffff66; color: #53677f; border-radius: 9px; max-width: 110px; }
+.reader-more { position: relative; }
+.reader-more summary { list-style: none; cursor: pointer; padding: 8px; min-height: 40px; display: flex; align-items: center; color: #53677f; }
+.reader-more summary::-webkit-details-marker { display: none; }
+.reader-more-menu { position: absolute; right: 0; top: 44px; z-index: 12; width: 150px; padding: 8px;
+  display: flex; flex-direction: column; background: #f4f9fff5; border: 1px solid white; border-radius: 15px; box-shadow: 0 12px 30px #52657b24; }
+.reader-more:not([open]) .reader-more-menu { display: none; }
+.reader-layout { background: linear-gradient(135deg,#f5faff70,#ffffff63); }
+.outline-slot { width: 146px; flex: 0 0 146px; min-height: 0; }
+.outline-slot[hidden] { display: none; }
+.reader-screen .outline-panel { height: 100%; width: 100%; padding: 15px 10px; background: #f6f7ff36; border-right: 1px solid #ffffffb3; backdrop-filter: blur(24px) saturate(1.25); }
+.reader-screen .outline-panel h3 { color: #737c8a; font-size: 12px; font-weight: 400; padding: 0 5px 15px; }
+.reader-screen .outline-link { font-size: 12px; color: #53677f; border: 1px solid transparent; border-radius: 9px; }
+.reader-screen .outline-link[aria-current=page] { background: #ffffffb8; border-color: white; box-shadow: 0 2px 9px #6b7db519; }
+.reader-screen .outline-tree ul { margin-left: 8px; border-color: #ffffffa6; }
+.reader-screen .outline-toggle { flex-basis: 24px; width: 24px; }
+.reader-screen .reader-viewport { background: transparent; }
+.reader-screen .reader-surface { padding: 28px 24px; }
+.reader-screen .reader-surface canvas { background: white; outline: 1px solid oklch(0 0 0 / .06); box-shadow: 0 1px 4px #8667780c,0 16px 30px #86677814; }
+.reader-divider { display: flex; justify-content: center; align-items: center; padding: 0; border: 0; border-left: 1px solid #ffffffdd;
+  border-right: 1px solid #a494a329; background: linear-gradient(#ffffff66,#eed4df38,#ffffff99); cursor: col-resize; touch-action: none; }
+.reader-divider span { display: block; width: 2px; height: 32px; border-radius: 2px; background: linear-gradient(#7eacbb,#b68f9e); box-shadow: 1px 0 #ffffffcc; }
+.reader-screen .reader-divider:active { transform: none; }
+.aurora-reader.compact .outline-slot { position: absolute; inset: 0 auto 0 0; z-index: 8; width: 190px; }
+.aurora-reader.compact .outline-panel { background: #f3f8fff2; box-shadow: 8px 0 25px #3a51711a; }
+.outline-scrim { position: absolute; inset: 0; z-index: 7; border: 0; background: #374a620d; }
+.reader-screen .outline-scrim:hover { background: #374a620d; }
+.reader-screen .reader-status { background: #ffffff50; border-top: 1px solid #ffffffa6; min-height: 36px; color: #7a818d; }
+.reader-screen .conversation-panel,.reader-screen .notes-panel,.reader-screen .citation-tray { background: #f7fbfff5; }
+@media (max-width: 800px) {
+  .aurora-columns { display: flex !important; flex-direction: column; overflow: auto; }
+  .aurora-reader { flex: 1 0 480px; }
+  .reader-divider { display: none; }
+  .reader-screen .ai-workspace { flex: 0 0 420px; border-top: 1px solid #ffffffb3; }
+}
+@media (max-width: 440px) {
+  .reader-screen .modal-header { padding: 8px 10px; gap: 10px; }
+  .reader-brand { font-size: 13px; gap: 6px; }
+  .reader-language { gap: 4px; }
+  .reader-screen .reader-controls { gap: 4px; padding: 6px; }
+  .reader-screen .page-controls { flex-wrap: wrap; }
+  .reader-screen .reader-surface { padding: 14px; }
+}
+@media (prefers-reduced-transparency: reduce) { .reader-screen { background: #eaf0f7; }
+  .reader-screen .modal-header,.reader-screen .reader-controls,.reader-screen .outline-panel,.reader-screen .ai-settings { background: #f3f6fa; backdrop-filter: none; } }
+@media (prefers-reduced-motion: reduce) { .reader-screen * { transition: none !important; } }
+.reader-sr { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.page-picker { position: relative; }
+.page-picker summary { list-style: none; cursor: pointer; display: flex; align-items: center; min-height: 40px; padding: 4px 6px; white-space: nowrap; }
+.page-picker summary::-webkit-details-marker { display: none; }
+.page-picker .page-jump { position: absolute; z-index: 12; top: 44px; left: 50%; transform: translateX(-50%);
+  padding: 10px; background: #f5fafff5; border: 1px solid white; border-radius: 12px; box-shadow: 0 12px 25px #53677f20; }
+.reader-screen .reader-controls { flex-wrap: nowrap; }
+.reader-screen .page-label { display: inline; color: #737c8a; }
+.reader-screen .page-picker .page-label { display: block; }
+.reader-screen .page-controls { gap: 0; }
+.reader-screen .zoom-controls { margin-left: 0; }
+.reader-screen .zoom-controls .icon-button { width: 28px; padding: 2px; }
+.aurora-reader.compact .reader-controls { flex-wrap: wrap; }
+.reader-screen .reader-controls { position: relative; z-index: 10; }
+.reader-screen .reader-layout { z-index: 0; }

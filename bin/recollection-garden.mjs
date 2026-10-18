@@ -9,7 +9,10 @@ async function readStdin() {
 }
 
 const [command, operation, flag, value] = process.argv.slice(2);
-if (command === 'serve') {
+if (command === 'mcp-config') {
+  const { mcpClientConfig } = await import('../bridge/mcp-config.mjs');
+  process.stdout.write(JSON.stringify(mcpClientConfig(), null, 2) + '\n');
+} else if (command === 'serve') {
   const { startServer } = await import('../bridge/server.mjs');
   const service = await startServer();
   process.stderr.write(`RecollectionGarden bridge ready on 127.0.0.1:${service.port}\n`);
@@ -28,7 +31,7 @@ if (command === 'serve') {
       } else if (flag) throw new Error('arguments');
       result = await call(operation, input);
     } else if (command === 'help' || !command) {
-      result = { ok: true, data: { usage: ['serve', 'sessions', 'call <operation> --input @file.json'],
+      result = { ok: true, data: { usage: ['mcp-config', 'serve', 'sessions', 'call <operation> --input @file.json'],
         operations: Object.keys((await import('../src/external/protocol.ts')).operations) } };
     } else throw new Error('arguments');
   } catch { result = { ok: false, error: { code: 'INVALID_INPUT', message: '命令或 JSON 输入无效。运行 help 查看用法。' } }; }

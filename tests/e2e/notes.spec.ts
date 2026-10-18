@@ -7,6 +7,7 @@ import { createAnchor } from '../../src/citations/anchors';
 test('摘录和页笔记编辑、面板保留、关闭确认及重开恢复', async ({ page }) => {
   await openReader(page, 'text-navigation.pdf');
   const sessionId = await connect(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '外部对话', exact: true }).click();
   await selectText(page, 'Across lines we keep the original source.');
   await page.getByRole('button', { name: '保存为摘录笔记', exact: true }).click();
@@ -15,6 +16,7 @@ test('摘录和页笔记编辑、面板保留、关闭确认及重开恢复', as
   await page.getByLabel('个人理解与疑问', { exact: true }).fill('个人理解');
   await page.getByRole('button', { name: '保存笔记', exact: true }).click();
   await expect(page.getByText('笔记已保存', { exact: true })).toBeVisible();
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await expect(page.getByRole('button', { name: '引用 1', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '查看笔记原文 1', exact: true }).click();
   await expect(page.locator('.citation-highlights span').first()).toBeVisible();
@@ -22,7 +24,9 @@ test('摘录和页笔记编辑、面板保留、关闭确认及重开恢复', as
   await saved(page);
   await page.getByLabel('个人理解与疑问', { exact: true }).fill('尚未提交的修改');
   expect((await cli('reader.open', await inputFor(sessionId))).error.code).toBe('UNSAVED_NOTE');
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '外部对话', exact: true }).click();
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('dialog', { name: 'text-navigation', exact: true }).getByRole('button', { name: '笔记', exact: true }).click();
   await expect(page.getByLabel('个人理解与疑问', { exact: true })).toHaveValue('尚未提交的修改');
   await page.getByRole('button', { name: '关闭', exact: true }).click();
@@ -31,6 +35,7 @@ test('摘录和页笔记编辑、面板保留、关闭确认及重开恢复', as
   await page.getByRole('button', { name: '保存笔记', exact: true }).click();
   await expect(page.getByText('已保存 · 版本 2', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '关闭', exact: true }).click(); await page.reload();
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '笔记', exact: true }).click();
   await page.getByRole('button', { name: '摘录笔记', exact: false }).click();
   await expect(page.getByLabel('个人理解与疑问', { exact: true })).toHaveValue('尚未提交的修改');
@@ -86,6 +91,7 @@ test('已完成 AI 回答保存快照，重复保存复用，外部并发编辑�
 
 test('笔记写入失败保留草稿并回滚，PDF 缺失和断网仍可编辑旧笔记', async ({ page }) => {
   await openReader(page, 'text-navigation.pdf'); const sessionId = await connect(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('dialog', { name: 'text-navigation', exact: true }).getByRole('button', { name: '笔记', exact: true }).click();
   await page.getByRole('button', { name: '新建页笔记', exact: true }).click();
   await page.getByLabel('笔记标题', { exact: true }).fill('可恢复笔记');
@@ -110,6 +116,7 @@ test('笔记写入失败保留草稿并回滚，PDF 缺失和断网仍可编辑�
       tx.objectStore('assets').clear(); tx.oncomplete = () => { db.close(); resolve(); }; };
   }));
   await page.reload();
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '笔记', exact: true }).click();
   await page.getByRole('button', { name: '可恢复笔记', exact: false }).click();
   await page.context().setOffline(true);

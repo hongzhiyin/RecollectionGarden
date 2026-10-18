@@ -35,7 +35,8 @@ static GardenApp *retainedDelegate;
     self.window.minSize = NSMakeSize(900, 620); self.window.delegate = self; self.window.releasedWhenClosed = NO;
     [self.window center];
     WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
-    configuration.websiteDataStore = WKWebsiteDataStore.defaultDataStore;
+    configuration.websiteDataStore = [NSBundle.mainBundle.infoDictionary[@"RGVerificationProfile"] boolValue]
+        ? [WKWebsiteDataStore dataStoreForIdentifier:[[NSUUID alloc] initWithUUIDString:@"4CABF4ED-9573-43FB-A09E-680B20166214"]] : WKWebsiteDataStore.defaultDataStore;
     self.webView = [[WKWebView alloc] initWithFrame:self.window.contentView.bounds configuration:configuration];
     self.webView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     self.webView.allowsBackForwardNavigationGestures = NO;
@@ -45,7 +46,7 @@ static GardenApp *retainedDelegate;
     [configuration.userContentController addScriptMessageHandler:self.workspace name:@"gardenDesktop"];
     self.window.contentView = self.workspace.view;
     [self.window makeKeyAndOrderFront:nil]; [NSApp activateIgnoringOtherApps:YES];
-    [self.webView loadHTMLString:@"<html><body style='background:#f5f3ee;font:16px -apple-system;padding:48px'>正在打开流光忆庭…</body></html>" baseURL:nil];
+    [self.webView loadHTMLString:@"<html><body style='background:linear-gradient(135deg,#edf9ff,#f8fbfd);color:#263242;font:16px -apple-system;padding:48px'>正在打开流光忆庭…</body></html>" baseURL:nil];
     self.runtime = [RuntimeHost new];
     [self.runtime start:^(NSError *error) {
         if (error) {

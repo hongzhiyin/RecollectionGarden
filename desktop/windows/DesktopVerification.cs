@@ -29,12 +29,26 @@ internal static class DesktopVerification
         await Wait("document.querySelector('.textLayer')?.textContent.includes('Selecting original text')===true");
         await Wait("(()=>{const r=document.querySelector('.reader-screen').getBoundingClientRect();return r.x===0&&r.y===0&&r.width===innerWidth&&r.height===innerHeight;})()");
         var fullWidth = web.Width;
-        await web.ExecuteScriptAsync("[...document.querySelectorAll('button')].find(e=>e.textContent==='外部对话').click()");
+        var browser = web.Parent?.Controls.OfType<BrowserPane>().Single()
+            ?? throw new InvalidOperationException("Native AI surface is missing.");
+        await web.ExecuteScriptAsync("window.chrome.webview.postMessage({type:'external.navigate',address:location.origin+'/__rg_experience'})");
         await Wait("[...document.querySelectorAll('button')].find(e=>e.textContent==='外部对话').getAttribute('aria-pressed')==='true'");
-        if (web.Width >= fullWidth) throw new InvalidOperationException("External browser did not split the native window.");
-        await web.ExecuteScriptAsync("[...document.querySelectorAll('button')].find(e=>e.textContent==='外部对话').click()");
+        for (var attempt = 0; attempt < 100 && !browser.Visible; attempt++) await Task.Delay(100);
+        if (!browser.Visible || !browser.HasPage || web.Width != fullWidth)
+            throw new InvalidOperationException("Native AI surface failed to load within the full-width shell.");
+        await Wait("(()=>{const r=document.querySelector('.aurora-reader').getBoundingClientRect();const a=document.querySelector('.ai-surface').getBoundingClientRect();return r.width>=420&&a.width>=300&&a.x>r.right;})()");
+        await web.ExecuteScriptAsync("document.querySelector('.reader-divider').dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}))");
+        await Wait("Math.abs(document.querySelector('.aurora-reader').getBoundingClientRect().width-420)<1");
+        await web.ExecuteScriptAsync("document.querySelector('.ai-toolbar button').click()");
+        await Wait("!document.querySelector('#ai-settings').hidden");
+        for (var attempt = 0; attempt < 100 && browser.Visible; attempt++) await Task.Delay(100);
+        if (browser.Visible || !browser.HasPage) throw new InvalidOperationException("Settings must hide, not unload, the AI surface.");
+        await web.ExecuteScriptAsync("document.querySelector('[aria-label=\"关闭连接设置\"]').click()");
+        for (var attempt = 0; attempt < 100 && !browser.Visible; attempt++) await Task.Delay(100);
+        if (!browser.Visible) throw new InvalidOperationException("AI surface was not restored after closing settings.");
+        await web.ExecuteScriptAsync("window.chrome.webview.postMessage({type:'external.close'})");
         await Wait("[...document.querySelectorAll('button')].find(e=>e.textContent==='外部对话').getAttribute('aria-pressed')==='false'");
-        if (web.Width != fullWidth) throw new InvalidOperationException("Reader width was not restored.");
+        if (web.Width != fullWidth) throw new InvalidOperationException("Reader shell width changed unexpectedly.");
         await web.ExecuteScriptAsync("document.querySelector('[aria-label=\"关闭\"]').click()");
         await Wait("!document.querySelector('.reader-surface')");
         await web.ExecuteScriptAsync("[...document.querySelectorAll('button')].find(e=>e.textContent==='连接本地服务').click()");
@@ -42,7 +56,7 @@ internal static class DesktopVerification
         await using (var image = File.Create(report + ".png"))
             await web.CoreWebView2.CapturePreviewAsync(Microsoft.Web.WebView2.Core.CoreWebView2CapturePreviewImageFormat.Png, image);
         File.WriteAllText(report, JsonSerializer.Serialize(new { ok = true, nativeWebView2 = true,
-            importedPdf = true, canvasHasInk = true, selectableText = true, bridgeConnected = true, fullWindowReader = true, nativeBrowserSplit = true }));
+            importedPdf = true, canvasHasInk = true, selectableText = true, bridgeConnected = true, fullWindowReader = true, nativeBrowserSurface = true, settingsPreserveSurface = true, minimumReaderWidth = true }));
         while (!File.Exists(report + ".stop")) await Task.Delay(100);
     }
 }

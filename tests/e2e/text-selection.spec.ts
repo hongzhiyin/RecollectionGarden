@@ -51,6 +51,7 @@ test('引用跨页回跳和重开恢复，高亮随缩放重新计算', async ({
   expect(widthAfter).not.toBeCloseTo(width, 0);
   await page.getByRole('button', { name: '关闭', exact: true }).click(); await page.reload();
   await page.getByRole('button', { name: '阅读 text-navigation', exact: true }).click(); await saved(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '引用 1', exact: true }).click();
   await page.getByRole('button', { name: '定位原文', exact: true }).click();
   await expect(page.getByText('已定位原文', { exact: true })).toBeVisible();

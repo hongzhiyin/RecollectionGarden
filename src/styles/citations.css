@@ -2,11 +2,11 @@
 .citation-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .citation-heading > span { color: var(--muted); font-size: 11px; }
 .citation-tray .button { min-height: 40px; padding: 6px 10px; font-size: 12px; }
-.citation-draft blockquote, .citation-list blockquote { margin: 6px 0; padding: 8px 12px; border-left: 2px solid var(--accent); background: #f3f0ea; white-space: pre-wrap; max-height: 76px; overflow: auto; user-select: text; }
+.citation-draft blockquote, .citation-list blockquote { margin: 6px 0; padding: 8px 12px; border-left: 2px solid var(--accent); background: var(--glass); white-space: pre-wrap; max-height: 76px; overflow: auto; user-select: text; }
 .citation-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .citation-actions [aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
 .citation-editor { display: block; }
-.citation-editor textarea { display: block; width: 100%; min-height: 56px; max-height: 120px; resize: vertical; margin: 5px 0 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--paper); }
+.citation-editor textarea { display: block; width: 100%; min-height: 56px; max-height: 120px; resize: vertical; margin: 5px 0 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: var(--field-background); }
 .citation-list article { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 .citation-list article > div { min-width: 0; }
 .citation-list article > .button { flex-shrink: 0; }
@@ -15,3 +15,6 @@
 .citation-list summary { color: var(--accent); cursor: pointer; }
 .citation-message { color: var(--accent); margin: 8px 0; }
 @media (max-width: 500px) { .citation-tray { padding: 8px; max-height: 40%; } }
+
+.citation-tray { background: var(--glass); backdrop-filter: blur(24px) saturate(1.25); }
+.citation-draft blockquote,.citation-list blockquote { border-left-color: #8aa7c4; border-radius: 0 9px 9px 0; }

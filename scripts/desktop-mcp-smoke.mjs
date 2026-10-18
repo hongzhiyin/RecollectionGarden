@@ -23,7 +23,7 @@ export async function verifyPackagedMcp(cli, title, reportPath) {
   };
   try {
     await client.connect(transport);
-    assert.equal((await client.listTools()).tools.length, 23);
+    assert.equal((await client.listTools()).tools.length, 25);
     const sessions = await call('rg_sessions_list');
     assert.equal(sessions.length, 1);
     const sessionId = sessions[0].sessionId;
@@ -44,7 +44,7 @@ export async function verifyPackagedMcp(cli, title, reportPath) {
     const input={sessionId,bookId:book.id,contextVersion:context.contextVersion};
     const page=await call('rg_page_read',{...input,params:{page:1}});
     assert.ok(JSON.stringify(page).includes('Selecting original text'));
-    const report={ok:true,tools:23,cliHelp:true,stdioMcp:true,bookListed:true,readerOpen:true,pageRead:true};
+    const report={ok:true,tools:25,cliHelp:true,stdioMcp:true,bookListed:true,readerOpen:true,pageRead:true};
     await writeFile(reportPath,JSON.stringify(report,null,2)+'\n');
     console.log(JSON.stringify(report));
   } finally {await client.close();}

@@ -69,6 +69,7 @@ test('重复原文的字符位置失效时只回来源页，不猜测高亮', as
   }));
   await page.reload(); await page.getByRole('button', { name: '阅读 text-navigation', exact: true }).click(); await saved(page);
   await jump(page, '1'); await saved(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '引用 1', exact: true }).click();
   await page.getByRole('button', { name: '定位原文', exact: true }).click();
   await expect(page.getByText('已回到来源页，精确定位不可用，未显示高亮。', { exact: true })).toBeVisible();

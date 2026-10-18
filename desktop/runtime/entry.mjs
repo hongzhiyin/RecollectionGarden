@@ -7,7 +7,10 @@ const defaultDataDir = process.platform === 'win32'
 const dataDir = process.env.RG_DESKTOP_DATA_DIR ?? defaultDataDir;
 process.env.RG_BRIDGE_CONFIG ??= resolve(dataDir, 'bridge.json');
 const mode = process.argv[2] ?? 'serve';
-if (mode === 'serve') {
+if (mode === 'mcp-config') {
+  const { mcpClientConfig } = await import('../../bridge/mcp-config.mjs');
+  process.stdout.write(JSON.stringify(mcpClientConfig({ desktopEntry: process.argv[1] }), null, 2) + '\n');
+} else if (mode === 'serve') {
   try {
     const { startDesktop } = await import('./server.mjs');
     const service = await startDesktop({ uiPort: Number(process.env.RG_DESKTOP_UI_PORT ?? 4321),

@@ -8,6 +8,12 @@
 书籍、笔记与进度保存在本机 `%LOCALAPPDATA%\RecollectionGarden\Desktop\WebView2`，首次导入 PDF。Mac 与 Windows 的书架暂不自动同步。
 关闭窗口会退出应用；未保存笔记先提示。重复打开会唤起已有窗口。Markdown 导出使用系统保存面板。
 
+## 0.7.2 界面与升级
+
+全应用使用极光玻璃主题。阅读器的笔记、引用和回传记录位于“更多”；右侧设置可填写 AI 网页地址。Windows 暂不具备 macOS 的自动上下文会话启动能力，网址打开不代表 AI 工具已连接阅读权限。
+
+更新前退出旧版，完整解压新 ZIP；用户数据在 `%LOCALAPPDATA%` 下，不在解压目录中。Mac 的本地书架不会自动出现在 Windows，需在 Windows 导入所需 PDF。
+
 ## CLI 与 MCP
 
 在解压目录打开 PowerShell：
@@ -17,7 +23,7 @@
 .\recollection-garden.exe call books.list --input '@request.json'
 ```
 
-在阅读器点击“连接本地服务”。界面端口 4321，能力服务端口 4322；配置和日志位于 `%LOCALAPPDATA%\RecollectionGarden\Desktop`。
+在阅读器右侧“设置”中点击“连接本地服务”，书架也保留该入口。界面端口 4321，能力服务端口 4322；配置和日志位于 `%LOCALAPPDATA%\RecollectionGarden\Desktop`。
 MCP 的 `command` 指向解压目录下 `recollection-garden.exe` 的完整路径，`args` 为 `["mcp"]`。
 陪读 skill 位于 `Resources\app\skills\recollection-garden-reading`。
 
@@ -32,6 +38,6 @@ npm run package:windows -- arm64
 ```
 
 Desktop Release workflow 同时构建 Mac、Windows x64 / ARM64；全部构建和各自验收成功后，在同一 Release 发布 DMG、ZIP 和 SHA-256。也支持维护者本机交叉构建。
-公开仓库使用标准 GitHub 托管 runner。本轮 Windows runner 已通过 PDF 导入、页面像素、可选文本层、CLI 输出、23 项 MCP 工具发现，以及书架读取、打开书籍和原文读取。ARM64 为交叉构建，仍需真实 ARM64 设备验收。
+公开仓库使用标准 GitHub 托管 runner。Windows x64 runner 会检查 PDF 导入、页面像素、可选文本层、原生 AI 容器与设置切换、CLI 输出、25 项 MCP 工具发现，以及书架读取、打开书籍和原文读取。ARM64 为交叉构建，仍需真实 ARM64 设备验收。
 最新完整结果见 [跨平台验收](cross-platform-verification.md)。
 Windows 体验包尚未添加发布者代码签名。完整手动验收还应覆盖大尺寸扫描页、目录、页码跳转、缩放、笔记编辑、导出和退出重开。

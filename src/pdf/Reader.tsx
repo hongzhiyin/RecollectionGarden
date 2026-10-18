@@ -23,13 +23,18 @@ import type { NoteTarget } from '../notes/discoveryRepository';
 import { useBridge } from '../external/BridgeProvider';
 import '../styles/reader.css';
 import { useDesktopPanel } from '../external/useDesktopPanel';
+import { AIWorkspace } from '../external/AIWorkspace';
+import { useReaderSplit } from './useReaderSplit';
+import '../styles/aurora.css';
+import '../styles/ai-workspace.css';
 
 export function Reader({ book, onClose, onProgress }: {
   book: BookView; onClose: () => void; onProgress: () => Promise<void>;
 }) {
   const position = useReadingPosition(book);
   const bridge = useBridge();
-  const desktopPanel = useDesktopPanel();
+  const desktopPanel = useDesktopPanel(book.id);
+  const split = useReaderSplit();
   const { view, setView } = position;
   const [externalVisible, setExternalVisible] = useState(false);
   const [notesVisible, setNotesVisible] = useState(false);
@@ -85,6 +90,7 @@ export function Reader({ book, onClose, onProgress }: {
   }
   const locateFromWindow = (id: string) => { void locate(id).catch(error => references.setMessage(error instanceof Error ? error.message : '定位失败，请重试。')); };
   useReaderEndpoint({ book, view, pdf: session.document, references,
+    outline: session.outline, outlineLoading: session.metadataLoading, outlineError: session.outlineError, showOutline: () => setOutlineVisible(true),
     current: () => rendering.displayed.current,
     ready: () => !!rendering.displayed.current && rendering.displayed.current.page === view.page
       && JSON.stringify(rendering.displayed.current.zoom) === JSON.stringify(view.zoom) && !rendering.loading && !rendering.error,
@@ -103,6 +109,12 @@ export function Reader({ book, onClose, onProgress }: {
   const status = session.error ? 'PDF 无法打开' : !session.document ? '正在打开 PDF'
     : rendering.error ? '页面显示失败' : rendering.loading || !paintMatches ? '正在显示页面' : position.preview ? '临时查看原文' : persistence.status;
   return <><Modal title={book.title} onClose={() => noteEditor.request(() => void close())} wide screen>
+    <div ref={split.ref} className={'aurora-columns' + (split.dragging ? ' is-dragging' : '')}
+      style={{ gridTemplateColumns: `minmax(0,${split.ratio}fr) 8px minmax(0,${100 - split.ratio}fr)` }}>
+    <section className={'aurora-reader' + (split.compact ? ' compact' : '')} aria-label="阅读区"
+      onKeyDown={event => { if (event.key === 'Escape' && split.compact && outlineVisible) {
+        event.preventDefault(); event.stopPropagation(); setOutlineVisible(false);
+      } }}>
     <ReaderToolbar page={view.page} total={session.document?.numPages ?? book.pages}
       label={session.labels[view.page - 1]} zoom={view.zoom} scalePercent={rendering.scalePercent}
       ready={!!session.document && !closing} outlineVisible={outlineVisible} navigate={navigate} setZoom={setZoom}
@@ -112,8 +124,9 @@ export function Reader({ book, onClose, onProgress }: {
       toggleExternal={() => { if (!desktopPanel.toggle()) { setNotesVisible(false); setExternalVisible(value => !value); } }}
       toggleNotes={() => { setExternalVisible(false); setNotesVisible(value => !value); }} />
     <div className="reader-layout">
-      {outlineVisible && <OutlinePanel document={session.document} items={session.outline} loading={session.metadataLoading}
-        error={session.outlineError} navigate={navigate} />}
+      {outlineVisible && split.compact && <button className="outline-scrim" aria-label="收起浮层目录" onClick={() => setOutlineVisible(false)} />}
+      <div className="outline-slot" hidden={!outlineVisible}><OutlinePanel document={session.document} items={session.outline} loading={session.metadataLoading}
+        error={session.outlineError} page={view.page} navigate={page => { navigate(page); if (split.compact) setOutlineVisible(false); }} /></div>
       <div className="reader-page-area" ref={setStatusContainer}>
         <div ref={rendering.viewport} className="reader-viewport" aria-label="阅读页面" onScroll={rendering.onScroll}>
           <div ref={rendering.surface} className="reader-surface">
@@ -129,6 +142,11 @@ export function Reader({ book, onClose, onProgress }: {
             <button className="button secondary" onClick={session.error ? session.retry : rendering.retry}>重试页面</button></div>}
         </div>
       </div>
+    </div>
+    </section>
+    <button className="reader-divider" role="separator" aria-label="调整阅读区宽度" aria-orientation="vertical"
+      aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(split.ratio)} {...split.separator}><span /></button>
+    <AIWorkspace desktop={desktopPanel} obscured={split.dragging || notesVisible || externalVisible || references.visible} />
     </div>
     {notesVisible ? <NotesPanel state={noteEditor} page={view.page} canCreate={!!session.document}
       locate={(id, index) => noteEditor.request(() => { void bridge.locateNote(book.id, id, index).catch(error => noteEditor.notice(error.message)); })} />

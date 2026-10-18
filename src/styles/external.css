@@ -12,3 +12,6 @@
 .conversation-incomplete { color: var(--muted); font-size: 11px; }
 .reading-preview { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 18px; border-top: 1px solid var(--line); font-size: 12px; }
 .reading-preview .button { min-height: 32px; padding: 5px 10px; font-size: 12px; }
+
+.conversation-panel { background: var(--glass); backdrop-filter: blur(24px) saturate(1.25); }
+.reading-preview { background: var(--glass-hover); }

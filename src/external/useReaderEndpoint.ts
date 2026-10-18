@@ -1,3 +1,4 @@
+import { outlineAction, type OutlineControls } from './outline-actions';
 import { useEffect, useMemo, useRef } from 'react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { BookView, ReaderLocation, ReaderZoom } from '../library/model';
@@ -10,7 +11,7 @@ import { BridgeError, operations, type BridgeCommand } from './protocol';
 import { durable } from './storage';
 import type { NoteTarget } from '../notes/discoveryRepository';
 
-interface ReaderControls {
+interface ReaderControls extends OutlineControls {
   book: BookView; view: ReaderLocation; pdf?: PDFDocumentProxy; references: CitationState;
   current: () => ReaderLocation | null; ready: () => boolean; original: () => ReaderLocation | undefined;
   navigate: (page: number, zoom?: ReaderZoom) => void;
@@ -75,6 +76,13 @@ export function useReaderEndpoint(controls: ReaderControls) {
           await new Promise(resolve => setTimeout(resolve, 40));
         }
       };
+      if (command.operation === 'outline.get' || command.operation === 'outline.navigate') {
+        return outlineAction(command, current, { fresh, snapshot: () => endpoint.current!.snapshot(),
+          waitForPage: async page => {
+            await wait(() => state.current.view.page === page && state.current.ready());
+            if (state.current.book.id !== current.book.id) throw new BridgeError('CONTEXT_CHANGED', '书籍已切换。');
+          } });
+      }
       if (command.operation === 'context.get') {
         if (!current.ready()) throw new BridgeError('NOT_READY', '当前页尚未完成显示。');
         return { ...endpoint.current!.snapshot(), assetHash: current.book.assetHash,

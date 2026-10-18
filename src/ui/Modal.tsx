@@ -18,7 +18,7 @@ export function Modal({ title, onClose, children, wide = false, screen = false }
   return <dialog ref={ref} className={(wide ? 'modal modal-wide' : 'modal') + (screen ? ' reader-screen' : '')} aria-label={title}
     onCancel={event => { event.preventDefault(); closeRef.current(); }}
     onClick={event => { if (!screen && event.target === event.currentTarget) closeRef.current(); }}>
-    <header className="modal-header"><h2>{title}</h2>
+    <header className="modal-header">{screen && <strong className="reader-brand"><Icon name="book" size={18} />流光忆庭</strong>}<h2>{title}</h2>
       <button className="icon-button" aria-label="关闭" onClick={onClose}><Icon name="close" /></button>
     </header>
     {children}

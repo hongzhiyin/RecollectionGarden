@@ -5,6 +5,7 @@ import { cli, connect, inputFor } from './external-helpers';
 
 test('外部跳页和缩放原子更新，临时定位返回和明确继续分别处理主进度', async ({ page }) => {
   await openReader(page, 'text-navigation.pdf'); const sessionId = await connect(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '外部对话', exact: true }).click();
   await selectText(page, 'Across lines we keep the original source.');
   const input = await inputFor(sessionId);

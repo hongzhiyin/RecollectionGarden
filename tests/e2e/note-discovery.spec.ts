@@ -7,6 +7,7 @@ import { cli, connect, inputFor } from './external-helpers';
 
 async function quoteNote(page: Parameters<typeof openReader>[0]) {
   await openReader(page,'text-navigation.pdf');const sessionId=await connect(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button',{name:'外部对话',exact:true}).click();
   await selectText(page,'Across lines we keep the original source.');
   await page.getByRole('button',{name:'保存为摘录笔记',exact:true}).click();
@@ -24,6 +25,7 @@ test('界面检索与 CLI 一致，书架来源定位、返回及 Markdown 下�
   await cli('reader.navigate',{...await inputFor(sessionId),params:{page:2,zoom:{mode:'percent',percent:150}}});
   await saved(page);const before=await storedProgress(page);
   await page.getByRole('button',{name:'关闭',exact:true}).click();
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button',{name:'笔记',exact:true}).click();
   await page.getByLabel('搜索笔记',{exact:true}).fill('ACROSS 中文');
   await expect(page.getByRole('button',{name:'来源与导出',exact:false})).toBeVisible();
@@ -92,6 +94,7 @@ test('缺 PDF 和断线时本地检索导出，定位失败不改变位置',asyn
   }));
   const before=await storedProgress(page);
   expect((await cli('notes.locate',{...input,params:{noteId:note.id}})).error.code).toBe('MISSING_ASSET');
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button',{name:'笔记',exact:true}).click();
   await page.getByLabel('搜索笔记',{exact:true}).fill('中文');
   await expect(page.getByRole('button',{name:'来源与导出',exact:false})).toBeVisible();

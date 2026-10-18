@@ -1,7 +1,6 @@
 #import <AppKit/AppKit.h>
 #import <WebKit/WebKit.h>
-
-@interface ReaderWorkspace : NSObject <WKScriptMessageHandler, NSSplitViewDelegate>
-@property(strong, readonly) NSSplitView *view;
+@interface ReaderWorkspace : NSObject <WKScriptMessageHandler>
+@property(strong, readonly) NSView *view;
 - (instancetype)initWithReader:(WKWebView *)reader;
 @end

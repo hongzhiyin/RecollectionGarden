@@ -7,6 +7,8 @@
 }
 - (void)start:(void (^)(NSError *))completion {
     NSString *resources = NSBundle.mainBundle.resourcePath;
+    BOOL verification = [NSBundle.mainBundle.infoDictionary[@"RGVerificationProfile"] boolValue];
+    if (verification) self.baseURL = [NSURL URLWithString:@"http://127.0.0.1:4331/"];
     NSString *support = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject
         stringByAppendingPathComponent:[NSBundle.mainBundle.infoDictionary[@"RGVerificationProfile"] boolValue]
             ? @"RecollectionGarden/DesktopQA" : @"RecollectionGarden/Desktop"];
@@ -28,6 +30,7 @@
         [environment removeObjectForKey:key];
     environment[@"RG_DESKTOP_DATA_DIR"] = support;
     environment[@"RG_DESKTOP_MANAGED"] = @"1";
+    if (verification) { environment[@"RG_DESKTOP_UI_PORT"] = @"4331"; environment[@"RG_DESKTOP_BRIDGE_PORT"] = @"4332"; }
     self.task.environment = environment;
     if (![self.task launchAndReturnError:&error]) { completion(error); return; }
     [self waitForReady:150 completion:completion];

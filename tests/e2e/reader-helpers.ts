@@ -20,6 +20,7 @@ export async function previewReady(page: Page) {
 }
 
 export async function jump(page: Page, target: string) {
+  if (!await page.getByLabel('跳转到 PDF 页').isVisible()) await page.getByLabel('跳转页码', { exact: true }).click();
   await page.getByLabel('跳转到 PDF 页').fill(target);
   await page.getByRole('button', { name: '跳转', exact: true }).click();
 }

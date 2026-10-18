@@ -13,13 +13,13 @@
   transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
 .textLayer .markedContent { display: contents; }
 .textLayer span[role="img"] { user-select: none; cursor: default; }
-.textLayer ::selection { background: #77618e55; color: transparent; }
+.textLayer ::selection { background: #8cbada66; color: transparent; }
 .textLayer br::selection { background: transparent; }
 .textLayer[data-main-rotation="90"] { transform: rotate(90deg) translateY(-100%); }
 .textLayer[data-main-rotation="180"] { transform: rotate(180deg) translate(-100%, -100%); }
 .textLayer[data-main-rotation="270"] { transform: rotate(270deg) translateX(-100%); }
 .citation-highlights { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
-.citation-highlights span { position: absolute; background: #e6bc4160; outline: 1px solid #b7902d70; }
+.citation-highlights span { position: absolute; background: #88c4d966; outline: 1px solid #638eaa70; }
 /* Keep asynchronous text feedback outside the PDF scroll geometry. */
 .text-layer-status { position: absolute; bottom: 8px; left: 8px; width: max-content; max-width: calc(100% - 16px);
   max-height: calc(100% - 16px); overflow: auto;

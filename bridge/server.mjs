@@ -1,3 +1,4 @@
+import { scopedRead } from './scoped-read.mjs';
 import { createServer } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
 import { WebSocketServer } from 'ws';
@@ -31,9 +32,9 @@ export async function startServer(options = {}) {
       if (!origins.has(request.headers.origin)) return send(response, 403, { ok: false, error: { code: 'ACCESS_DENIED', message: '不接受此页面连接。' } });
       return send(response, 200, { ok: true, data: { token: config.token } });
     }
-    if (request.method !== 'POST' || request.url !== '/rpc') return send(response, 404, { ok: false, error: { code: 'NOT_FOUND', message: '接口不存在。' } });
+    if (request.method !== 'POST' || !['/rpc', '/scoped-read'].includes(request.url)) return send(response, 404, { ok: false, error: { code: 'NOT_FOUND', message: '接口不存在。' } });
     if (!matches(request.headers.authorization, 'Bearer ' + config.token)) return send(response, 401, { ok: false, error: { code: 'ACCESS_DENIED', message: '本地连接令牌无效。' } });
-    try { send(response, 200, await hub.call(await body(request))); }
+    try { send(response, 200, await (request.url === '/scoped-read' ? scopedRead(hub, await body(request)) : hub.call(await body(request)))); }
     catch { send(response, 400, { ok: false, error: { code: 'INVALID_REQUEST', message: '请求格式或大小无效。' } }); }
   });
   const sockets = new WebSocketServer({ noServer: true, maxPayload: 1024 * 1024 });

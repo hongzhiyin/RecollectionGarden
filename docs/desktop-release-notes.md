@@ -1,10 +1,10 @@
-流光忆庭 / Garden of Recollection 0.7.1：Mac 与 Windows 统一体验版。
+流光忆庭 / Garden of Recollection 0.7.2：极光玻璃全应用主题体验版。
 
-打开书籍后铺满应用内容区。“外部对话”在右侧打开独立网页面板，可输入网址，拖动分隔线调整比例；支持网页导航、收起恢复和站点偏好保存。原有 AI 消息展示保留在“回传记录”。
+书架、阅读区、笔记、引用、回传记录、设置及弹窗统一为冰蓝、透明白和少量淡粉点缀的极光玻璃风格。原有数据和业务能力保留。
 
-0.7.1 同时修复 Windows 根页面滚动条造成的阅读区宽度不足。
+阅读与 AI 区默认 65/35，可拖动、用左右方向键调整，双击或 Enter 恢复默认；阅读区最小 420px、AI 区最小 300px。目录收起后保留展开层级；窄窗口使用浮层目录或上下布局。点击页码可跳转，笔记、引用及回传记录在“更多”中。
 
-网页加载与 AI 工具连接是独立能力。DreamEdge 可通过单独运行的本地网页版接入，Mac 已验证真实对话翻页、原文定位、返回和笔记编辑。第三方 AI 登录及工具连接未验收；普通网页不会自动获得阅读器权限。
+AI 窗口右上角“设置”管理连接与网址；原生网页独立承载，设置打开时隐藏表面但不卸载会话。macOS 保留已配置的 AI 上下文会话入口；Windows 当前支持网址嵌入，尚不支持同等的自动上下文会话启动。
 
 | 设备 | 下载文件 | 打开方式 |
 | --- | --- | --- |
@@ -12,9 +12,10 @@
 | Windows Intel / AMD | windows-x64.zip | 完整解压，运行 RecollectionGarden.exe |
 | Windows on ARM | windows-arm64.zip | 完整解压，运行 RecollectionGarden.exe |
 
-各包均附 SHA-256，内置 Node；Windows 另附 .NET 运行环境，系统需有 Microsoft Edge WebView2 Runtime。
+各包均附 SHA-256，内置 Node；Windows 另附 .NET 运行环境，系统需有 Microsoft Edge WebView2 Runtime。不要下载 GitHub 自动生成的 Source code ZIP 来直接运行应用。
 
-Mac CI 验证 DMG 完整性、解挂载后重定位、应用深度签名、独立 CLI、包内服务驱动的浏览器阅读与 MCP 联调；该浏览器验收不等同于 AppKit/WKWebView 原生窗口验收。
-Windows x64 验证原生 WebView2、页面和文本层、CLI 输出及 MCP 书架、打开和原文读取；ARM64 仍需真机验证。
+macOS 0.7.2 已完成本机升级、数据和配置保留检查，用户试用后确认暂未发现问题。Windows x64 发布流程包含原生 WebView2、阅读页面与文本层、AI 容器边界、设置切换及 CLI/MCP 验证；ARM64 为交叉构建，仍需实际设备试用。
 
-Mac 采用 ad-hoc 签名，尚未 Developer ID 签名或公证；Windows 尚无发布者签名。书架和笔记保存在各设备本地，暂不跨设备同步。
+书架、笔记与阅读进度保存在各设备本地，Mac 与 Windows 暂不自动同步。更新 Windows 包时先退出旧版，再完整解压新包；不要删除 `%LOCALAPPDATA%\RecollectionGarden`。
+
+Mac 采用 ad-hoc 签名，尚未 Developer ID 签名或公证；Windows 尚无发布者签名。本次发布用于阶段性测试，真实第三方 AI 登录和跨平台设备适配仍需按实际环境验证。

@@ -1,3 +1,4 @@
+import { scopedMcpServer } from './scoped-mcp.mjs';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -6,6 +7,8 @@ import { call } from './client.mjs';
 import { readFile } from 'node:fs/promises';
 
 const descriptions = {
+  'outline.get': '读取书籍内置目录层级、条目及版本，支持标题查询和分页。',
+  'outline.navigate': '按目录条目、章节号、章节标题或目录页目标导航，不猜物理页码。',
   'sessions.list': '列出已连接阅读器。必须明确选择 sessionId，不自动选择第一个窗口。',
   'requests.get': '按原 requestId 查询超时或断线操作的结果。',
   'books.list': '列出指定窗口的本地书架元数据。',
@@ -31,8 +34,14 @@ const descriptions = {
   'notes.export': '按明确请求导出指定书籍全部笔记或检索结果；逐块读取并校验 contentHash，变化后从首块重读。',
 };
 const appVersion = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version;
-const server = new McpServer({ name: 'RecollectionGarden', version: appVersion });
-for (const [operation, params] of Object.entries(operations)) {
+const scopeIndex = process.argv.indexOf('--window');
+const bookIndex = process.argv.indexOf('--book');
+if ((scopeIndex >= 0) !== (bookIndex >= 0)) throw new Error('Both scoped window and book are required');
+const windowRef = scopeIndex < 0 ? undefined : process.argv[scopeIndex + 1];
+const resource = bookIndex < 0 ? undefined : process.argv[bookIndex + 1];
+if (scopeIndex >= 0 && (!windowRef || !resource || !/^[a-f0-9-]{36}$/.test(windowRef) || resource.length > 120)) throw new Error('Invalid reading scope');
+const server = windowRef ? scopedMcpServer(windowRef, resource, appVersion) : new McpServer({ name: 'RecollectionGarden', version: appVersion });
+if (!windowRef) for (const [operation, params] of Object.entries(operations)) {
   server.registerTool('rg_' + operation.replaceAll('.', '_'), {
     description: descriptions[operation],
     inputSchema: { sessionId: z.string().optional(), bookId: z.string().optional(), contextVersion: z.string().optional(),

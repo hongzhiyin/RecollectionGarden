@@ -26,6 +26,23 @@ npm run preview -- --port 4318
 
 ## 外部 AI 接入
 
+### 复制 MCP 配置
+
+在项目目录运行以下命令，输出可直接粘贴到任意支持 `mcpServers` JSON 的 AI 客户端的配置：
+
+```sh
+node bin/recollection-garden.mjs mcp-config
+node bin/recollection-garden.mjs mcp-config > mcp.json
+```
+
+命令优先使用本机已有的桌面版 MCP 入口，自动生成绝对路径，不读取或输出桥接令牌。桌面运行入口也支持 `mcp-config`（需包含此更新的新版应用包）。旧包已有 `mcp` 能力，可直接使用源码导出的 JSON，无需升级包来接收调用。
+
+将 JSON 粘贴到 AI 客户端，或导入输出的文件即可。阅读器保持运行，并在“外部对话”中连接本地服务。客户端按标准 MCP 发现会话和工具，不需要绑定特定 AI 产品。
+
+CLI 与 Skill 是另外两种可选接入方式；仅使用 MCP 时无需额外安装 Skill。CLI 的 `help` 列出操作，随附 Skill 提供调用规则和阅读工作流，均不依赖某个 AI 客户端。
+
+### CLI 与开发服务
+
 另一个终端启动本地服务：
 
 ```sh

@@ -7,6 +7,7 @@ import { cli, connect, inputFor } from './external-helpers';
 
 test('CLI/MCP 读取同一上下文，外部消息和原文引用恢复，临时查看不改主进度', async ({ page }) => {
   await openReader(page, 'text-navigation.pdf'); const sessionId = await connect(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '外部对话', exact: true }).click();
   await selectText(page, 'Across lines we keep the original source.');
   const input = await inputFor(sessionId);
@@ -16,7 +17,7 @@ test('CLI/MCP 读取同一上下文，外部消息和原文引用恢复，临时
   const transport = new StdioClientTransport({ command: process.execPath, args: ['bridge/mcp.mjs'], cwd: process.cwd(), stderr: 'pipe' });
   await client.connect(transport);
   try {
-    const tools = await client.listTools(); expect(tools.tools).toHaveLength(23);
+    const tools = await client.listTools(); expect(tools.tools).toHaveLength(25);
     const response = await client.callTool({ name: 'rg_context_get', arguments: { ...input, params: {} } });
     const result = JSON.parse((response.content as { type: string; text: string }[])[0].text);
     expect(result.data.selection).toEqual(context.data.selection);
@@ -27,6 +28,7 @@ test('CLI/MCP 读取同一上下文，外部消息和原文引用恢复，临时
       requestId: 'message-' + input.bookId, params: { conversationId: 'external-test', messageId: 'answer', sequence: 1,
         text: 'An external explanation with a verified source.', status: 'complete', citationIds: [created.data.id], sourceLabel: 'SDK Test Client' } } });
     expect(published.isError).not.toBe(true);
+    if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
     await page.getByRole('button', { name: '外部对话', exact: true }).click();
     await expect(page.getByTestId('external-message')).toContainText('An external explanation');
     const nav = await cli('reader.navigate', { ...await inputFor(sessionId), params: { page: 2 } }); expect(nav.ok).toBe(true);
@@ -39,6 +41,7 @@ test('CLI/MCP 读取同一上下文，外部消息和原文引用恢复，临时
     await expect(page.getByTestId('page-indicator')).toHaveText('PDF 第 2 / 3 页');
     await page.getByRole('button', { name: '关闭', exact: true }).click(); await page.reload();
     await page.getByRole('button', { name: '阅读 text-navigation', exact: true }).click(); await saved(page);
+    if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
     await page.getByRole('button', { name: '外部对话', exact: true }).click();
     await expect(page.getByTestId('external-message')).toContainText('An external explanation');
   } finally { await client.close(); }

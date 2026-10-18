@@ -1,6 +1,6 @@
-.modal { width: min(520px, calc(100% - 32px)); padding: 0; border: 0; background: var(--paper); color: var(--ink);
-  border-radius: 16px; box-shadow: 0 10px 30px #2f253320, 0 30px 100px #2f253320; max-height: calc(100vh - 48px); }
-.modal::backdrop { background: #2721305c; backdrop-filter: blur(3px); }
+.modal { width: min(520px, calc(100% - 32px)); padding: 0; border: 1px solid var(--glass-line); background: var(--glass-panel); color: var(--ink);
+  border-radius: 23px; box-shadow: var(--floating-shadow); backdrop-filter: blur(24px) saturate(1.25); max-height: calc(100vh - 48px); }
+.modal::backdrop { background: #40536a35; backdrop-filter: blur(6px); }
 .modal-header { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
 .modal-header h2 { font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
 .modal-body { padding: 24px; }
@@ -11,10 +11,10 @@
   border-radius: 9px; padding: 10px 14px; color: var(--ink); background: transparent; font-size: 14px; }
 .duplicate-choice > span:first-of-type { flex: 1; overflow-wrap: anywhere; }
 .duplicate-choice .muted { font-size: 12px; white-space: nowrap; }
-.duplicate-choice:hover { background: #f1eee8; }
+.duplicate-choice:hover { background: var(--glass-hover); }
 .feedback { position: fixed; z-index: 5; bottom: 24px; right: 24px; width: min(560px, calc(100% - 32px));
-  padding: 15px 18px; display: flex; align-items: center; gap: 14px; border-radius: 13px; background: var(--paper);
-  color: var(--accent); box-shadow: 0 3px 8px #32283b0e, 0 12px 40px #32283b20; }
+  padding: 15px 18px; display: flex; align-items: center; gap: 14px; border-radius: 18px; background: var(--glass-panel); border: 1px solid var(--glass-line); backdrop-filter: blur(24px);
+  color: var(--accent); box-shadow: var(--floating-shadow); }
 .feedback > svg { flex-shrink: 0; }
 .feedback > div { flex: 1; min-width: 0; }
 .feedback strong { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
@@ -27,8 +27,11 @@
 .reader-toolbar .save-retry { width: auto; }
 .save-status { color: var(--muted); font-size: 11px; }
 .reader-page { min-height: 360px; max-height: calc(100vh - 220px); overflow: auto; padding: 24px;
-  background: #e9e6e0; position: relative; text-align: center; }
+  background: var(--surface-tint); position: relative; text-align: center; }
 .reader-page canvas { display: block; max-width: 100%; height: auto; margin: 0 auto; background: white; outline: 1px solid oklch(0 0 0 / .1);
   box-shadow: 0 5px 18px #22222216; }
 .reader-loading { position: absolute; left: 0; right: 0; top: 60px; font-size: 14px; color: var(--muted); }
 @media (max-width: 500px) { .feedback { right: 16px; bottom: 16px; gap: 9px; } .reader-page { padding: 12px; } .modal-header { padding: 16px; } }
+
+.modal-header { background: #ffffff38; }
+.duplicate-choice { background: var(--glass); border-color: var(--glass-line); border-radius: 12px; }

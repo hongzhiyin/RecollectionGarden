@@ -12,6 +12,7 @@ export async function cli(operation: string, input: Record<string, unknown> = {}
   }
 }
 export async function connect(page: Page) {
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '外部对话', exact: true }).click();
   const panel = page.getByRole('region', { name: '外部对话展示窗口' });
   await panel.getByRole('button', { name: '连接本地服务', exact: true }).click();

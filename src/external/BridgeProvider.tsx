@@ -1,3 +1,4 @@
+import { prepareContext } from './prepare-context';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { library } from '../library/repository';
 import { failure, parseRequest, contextualOperations, durableOperations, BridgeError, type BridgeCommand,
@@ -19,6 +20,7 @@ export interface ReaderEndpoint {
 }
 interface BridgeContextValue {
   status: string; sessionId: string; connected: boolean; enabled: boolean;
+  prepareExternal: (resource: string) => Promise<{ window: string; resource: string; revision: string; title: string }>;
   connect: () => void; disconnect: () => void;
   attachReader: (endpoint: ReaderEndpoint) => () => void;
   attachApp: (open: (bookId: string) => Promise<void>) => () => void;
@@ -33,6 +35,7 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   const [enabled, setEnabled] = useState(() => sessionStorage.getItem('rg-bridge-enabled') === 'yes');
   const [status, setStatus] = useState('未连接外部工具');
   const [sessionId, setSessionId] = useState('');
+  const ready = useRef(false);
   const socket = useRef<WebSocket | null>(null);
   const endpoint = useRef<ReaderEndpoint | null>(null);
   const openBook = useRef<((bookId: string) => Promise<void>) | null>(null);
@@ -94,19 +97,28 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
         current.onopen = () => current?.send(JSON.stringify({ type: 'hello', token: result.data.token, clientId: clientId.current }));
         current.onmessage = event => {
           const value = JSON.parse(event.data);
-          if (value.type === 'ready') { setSessionId(value.sessionId); setStatus('外部工具已连接'); changed(); }
+          if (value.type === 'ready') { ready.current = true; setSessionId(value.sessionId); setStatus('外部工具已连接'); changed(); }
           if (value.type === 'command') void handler.current!(value.request).then(result => {
             if (current?.readyState === WebSocket.OPEN && socket.current === current) current.send(JSON.stringify({ type: 'result', requestId: value.request.requestId, result }));
           });
         };
-        current.onclose = () => { setSessionId(''); setStatus('连接已断开，正在重连'); if (!stopped) timer = setTimeout(start, 2000); };
+        current.onclose = () => { ready.current = false; setSessionId(''); setStatus('连接已断开，正在重连'); if (!stopped) timer = setTimeout(start, 2000); };
         current.onerror = () => {};
       } catch { if (!stopped) { setStatus('本地服务不可用，请先启动服务'); timer = setTimeout(start, 3000); } }
     };
     void start();
-    return () => { stopped = true; clearTimeout(timer); current?.close(); if (socket.current === current) socket.current = null; setSessionId(''); };
+    return () => { stopped = true; ready.current = false; clearTimeout(timer); current?.close(); if (socket.current === current) socket.current = null; setSessionId(''); };
   }, [enabled]);
-  return <Context.Provider value={{ status, sessionId, connected: !!sessionId, enabled,
+  return <Context.Provider value={{ prepareExternal: async resource => {
+    sessionStorage.setItem('rg-bridge-enabled', 'yes'); setEnabled(true);
+    const deadline = Date.now() + 8000;
+    while (!ready.current || socket.current?.readyState !== WebSocket.OPEN || !endpoint.current?.ready()) {
+      if (Date.now() > deadline) throw new Error('当前书籍或本地内容服务尚未就绪，请重试。');
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    if (endpoint.current.snapshot().bookId !== resource) throw new Error('书籍已切换，请从当前窗口重试。');
+    changed(); return prepareContext(socket.current, resource);
+  }, status, sessionId, connected: !!sessionId, enabled,
     locateNote: async (bookId, noteId, sourceIndex = 0) => {
       const result = await handler.current!({ ...parseRequest({ operation: 'notes.locate', bookId,
         params: { noteId, sourceIndex }, requestId: crypto.randomUUID() }), clientId: 'ui', expiresAt: Date.now() + 15000 });

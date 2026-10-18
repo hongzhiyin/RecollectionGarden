@@ -16,7 +16,7 @@ export async function stageDesktopPayload(destination, { offline = false } = {})
   await mkdir(destination, { recursive: true });
   for (const folder of ['dist', 'bridge', 'bin', 'desktop/runtime', 'skills/recollection-garden-reading'])
     await cp(resolve(root, folder), resolve(destination, folder), { recursive: true });
-  for (const file of ['src/external/protocol.ts', 'src/citations/schema.ts', 'src/notes/protocol.ts', 'src/notes/discoveryProtocol.ts']) {
+  for (const file of ['src/external/protocol.ts', 'src/external/outline-protocol.ts', 'src/citations/schema.ts', 'src/notes/protocol.ts', 'src/notes/discoveryProtocol.ts']) {
     await mkdir(dirname(resolve(destination, file)), { recursive: true });
     await cp(resolve(root, file), resolve(destination, file));
   }
@@ -37,4 +37,7 @@ export async function stageDesktopPayload(destination, { offline = false } = {})
   await writeFile(resolve(destination, 'package.json'), JSON.stringify({ name: source.name, version: source.version,
     type: 'module', private: true, engines: source.engines, dependencies: Object.fromEntries(
       ['@modelcontextprotocol/sdk', 'ws', 'zod'].map(name => [name, source.dependencies[name]])) }, null, 2));
+  // Validate the packaged protocol dependency graph, not just the source checkout.
+  execFileSync(process.execPath, ['--input-type=module', '-e', 'await import("./src/external/protocol.ts");'],
+    { cwd: destination, stdio: 'pipe' });
 }

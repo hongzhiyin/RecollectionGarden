@@ -6,7 +6,7 @@ export class BridgeHub {
   requests = new Map();
   constructor(timeout = 15000) { this.timeout = timeout; }
   register(socket, clientId) {
-    for (const session of this.sessions.values()) if (session.clientId === clientId) session.socket.close(4001, 'replaced');
+    for (const session of this.sessions.values()) if (session.clientId === clientId) { session.socket.close(4001, 'replaced'); this.remove(session); }
     const session = { id: randomUUID(), clientId, socket, snapshot: null };
     this.sessions.set(session.id, session);
     socket.send(JSON.stringify({ type: 'ready', sessionId: session.id }));
@@ -20,6 +20,13 @@ export class BridgeHub {
   }
   receive(session, value) {
     if (!this.sessions.has(session.id)) return;
+    if (value.type === 'prepare-external') {
+      const valid = typeof value.requestId === 'string' && value.requestId.length <= 120;
+      if (valid) session.socket.send(JSON.stringify({ type: 'external-context', requestId: value.requestId,
+        ...(session.snapshot?.bookId && session.snapshot.bookId === value.resource
+          ? { context: { window: session.clientId, resource: session.snapshot.bookId, revision: session.snapshot.contextVersion, title: session.snapshot.title } }
+          : { error: '当前书籍尚未就绪或已切换，请重试。' }) }));
+    }
     if (value.type === 'state') session.snapshot = snapshotSchema.parse(value.snapshot);
     if (value.type === 'result') {
       const record = this.requests.get(session.clientId + ':' + value.requestId);

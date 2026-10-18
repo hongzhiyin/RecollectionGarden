@@ -1,3 +1,4 @@
+import { outlineOperations } from './outline-protocol.ts';
 import { z } from 'zod';
 import { quoteSourceSchema } from '../citations/schema.ts';
 import { noteOperations } from '../notes/protocol.ts';
@@ -27,6 +28,7 @@ export const operations = {
   'conversation.publish': messageSchema,
   'conversation.list': z.object({}).strict(),
   ...noteOperations,
+  ...outlineOperations,
 } as const;
 export type Operation = keyof typeof operations;
 export const requestSchema = z.object({ requestId: id, operation: z.enum(Object.keys(operations) as [Operation, ...Operation[]]),
@@ -39,7 +41,7 @@ export const snapshotSchema = z.object({ bookId: id.nullable(), title: z.string(
   page: z.number().int().min(0).max(2000), contextVersion: id }).strict();
 export const durableOperations = new Set<Operation>(['citation.create', 'conversation.publish', 'notes.create', 'notes.update', 'notes.delete']);
 export const contextualOperations = new Set<Operation>(['context.get', 'page.read', 'draft.get', 'citation.create',
-  'citation.locate', 'reader.navigate', 'reader.return', 'reader.continue']);
+  'outline.get', 'outline.navigate', 'citation.locate', 'reader.navigate', 'reader.return', 'reader.continue']);
 export class BridgeError extends Error {
   code: string;
   constructor(code: string, message: string) { super(message); this.code = code; }

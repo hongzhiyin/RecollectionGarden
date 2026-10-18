@@ -27,8 +27,10 @@ export function usePageRenderer(document: PDFDocumentProxy | undefined, view: Re
       measured.current = next;
       busy.current = true; setLoading(true); setSize(next);
     };
-    const observer = new ResizeObserver(measure); observer.observe(element); measure();
-    return () => observer.disconnect();
+    let frame = 0;
+    const observer = new ResizeObserver(() => { clearTimeout(frame); frame = window.setTimeout(measure, 0); });
+    observer.observe(element); measure();
+    return () => { observer.disconnect(); clearTimeout(frame); };
   }, []);
   useEffect(() => {
     if (!document || size.width <= 1 || size.height <= 1) return;

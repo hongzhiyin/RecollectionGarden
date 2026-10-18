@@ -13,6 +13,7 @@ test('原生动画帧暂停时仍完成 PDF 渲染、精确定位和完整主位
   });
   await openReader(page, 'text-navigation.pdf');
   const sessionId = await connect(page);
+  if (await page.locator('.reader-more').count() && !await page.locator('.reader-more[open]').count()) await page.locator('.reader-more > summary').click();
   await page.getByRole('button', { name: '外部对话', exact: true }).click();
   await selectText(page, 'Across lines we keep the original source.');
   const quote = await cli('citation.create', { ...await inputFor(sessionId), params: {} });
