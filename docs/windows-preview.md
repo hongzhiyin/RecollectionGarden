@@ -8,9 +8,9 @@
 书籍、笔记与进度保存在本机 `%LOCALAPPDATA%\RecollectionGarden\Desktop\WebView2`，首次导入 PDF。Mac 与 Windows 的书架暂不自动同步。
 关闭窗口会退出应用；未保存笔记先提示。重复打开会唤起已有窗口。Markdown 导出使用系统保存面板。
 
-## 0.7.2 界面与升级
+## 0.7.3 双端连接与升级
 
-全应用使用极光玻璃主题。阅读器的笔记、引用和回传记录位于“更多”；右侧设置可填写 AI 网页地址。Windows 暂不具备 macOS 的自动上下文会话启动能力，网址打开不代表 AI 工具已连接阅读权限。
+全应用使用极光玻璃主题。阅读器的笔记、引用和回传记录位于“更多”；右侧设置可填写 AI 网页地址。Windows 已支持 ai-session-launch/v1：在“设置 → 更多连接操作 → 配置 AI”导入配套 DreamEdge 包旁的 ai-entry.json，再点击连接；首次在 DreamEdge 确认应用与书籍范围。直接填写网址只打开网页，不等同于上下文交接。
 
 更新前退出旧版，完整解压新 ZIP；用户数据在 `%LOCALAPPDATA%` 下，不在解压目录中。Mac 的本地书架不会自动出现在 Windows，需在 Windows 导入所需 PDF。
 

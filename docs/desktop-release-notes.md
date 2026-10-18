@@ -1,21 +1,18 @@
-流光忆庭 / Garden of Recollection 0.7.2：极光玻璃全应用主题体验版。
+流光忆庭 0.7.3 + DreamEdge 0.0.2：Windows 阅读上下文配套测试包。
 
-书架、阅读区、笔记、引用、回传记录、设置及弹窗统一为冰蓝、透明白和少量淡粉点缀的极光玻璃风格。原有数据和业务能力保留。
+本版补齐 Windows 原生 AI 入口导入、后台启动、当前窗口 / 书籍绑定、DreamEdge 嵌入会话与 MCP 交接。沿用极光玻璃主题与现有业务能力，macOS 原有连接方式保留。
 
-阅读与 AI 区默认 65/35，可拖动、用左右方向键调整，双击或 Enter 恢复默认；阅读区最小 420px、AI 区最小 300px。目录收起后保留展开层级；窄窗口使用浮层目录或上下布局。点击页码可跳转，笔记、引用及回传记录在“更多”中。
+## Windows 使用
 
-AI 窗口右上角“设置”管理连接与网址；原生网页独立承载，设置打开时隐藏表面但不卸载会话。macOS 保留已配置的 AI 上下文会话入口；Windows 当前支持网址嵌入，尚不支持同等的自动上下文会话启动。
+1. Intel / AMD 设备下载两份 `windows-x64.zip`；Windows on ARM 下载两份 `windows-arm64.zip`。两份分别是 RecollectionGarden 与 DreamEdge，均需完整解压。
+2. 运行 DreamEdge.exe，配置自己的模型服务。首次启动会在 `%APPDATA%\DreamEdge` 生成 `connection.local.json` 与 `credentials.local.json`；测试包不包含 API 密钥或个人会话。
+3. 运行 RecollectionGarden.exe，导入并打开 PDF。在右侧“设置 → 更多连接操作 → 配置 AI”中选择 DreamEdge 解压目录的 `ai-entry.json`，确认启动器路径。
+4. 点击“连接”。首次在 DreamEdge 确认应用与当前书籍的 MCP 范围后，即可在嵌入界面询问当前页、读取目录或翻页。
 
-| 设备 | 下载文件 | 打开方式 |
-| --- | --- | --- |
-| Apple Silicon Mac，macOS 26+ | macos-arm64.dmg | 打开 DMG，将流光忆庭.app 拖到应用程序 |
-| Windows Intel / AMD | windows-x64.zip | 完整解压，运行 RecollectionGarden.exe |
-| Windows on ARM | windows-arm64.zip | 完整解压，运行 RecollectionGarden.exe |
+移动 DreamEdge 文件夹后重新导入入口配置。切书、窗口离线或上下文版本变化会拒绝旧范围调用；不要手动复制临时嵌入网址作为固定入口。关闭设置保留会话，取消连接会丢弃过期启动结果。
 
-各包均附 SHA-256，内置 Node；Windows 另附 .NET 运行环境，系统需有 Microsoft Edge WebView2 Runtime。不要下载 GitHub 自动生成的 Source code ZIP 来直接运行应用。
+Windows 包内置 Node / .NET 所需运行环境，阅读器系统需有 Microsoft Edge WebView2 Runtime。Mac 与 Windows 的书架和会话保存在各自设备，暂不自动同步。更新前退出旧版；不要删除 `%LOCALAPPDATA%\RecollectionGarden` 或 `%APPDATA%\DreamEdge`。
 
-macOS 0.7.2 已完成本机升级、数据和配置保留检查，用户试用后确认暂未发现问题。Windows x64 发布流程包含原生 WebView2、阅读页面与文本层、AI 容器边界、设置切换及 CLI/MCP 验证；ARM64 为交叉构建，仍需实际设备试用。
+发布门槛：两端 Windows 构建与协议测试通过，x64 使用实际两端包验证原生嵌入、MCP 上下文和原文读取、翻页及设置切换。模型使用本地协议夹具，不代表真实服务商与 ARM64 实机人工验收。配套源码版本由发布工作流固定，ZIP 附 SHA-256。
 
-书架、笔记与阅读进度保存在各设备本地，Mac 与 Windows 暂不自动同步。更新 Windows 包时先退出旧版，再完整解压新包；不要删除 `%LOCALAPPDATA%\RecollectionGarden`。
-
-Mac 采用 ad-hoc 签名，尚未 Developer ID 签名或公证；Windows 尚无发布者签名。本次发布用于阶段性测试，真实第三方 AI 登录和跨平台设备适配仍需按实际环境验证。
+Mac 包采用 ad-hoc 签名；Windows 包尚无发布者签名。不要下载 GitHub 自动生成的 Source code ZIP 当作应用运行。

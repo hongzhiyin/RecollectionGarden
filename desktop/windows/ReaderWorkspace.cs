@@ -41,13 +41,16 @@ internal sealed class ReaderWorkspace : UserControl
                 } else if (type == "external.state") browser.Report();
                 else if (type == "external.toggle") {
                     await SetOpen(body.TryGetProperty("open", out var requested) ? requested.GetBoolean() : !open);
-                    if (open) await browser.ActivateAsync(); else await browser.Command("external.close", "");
+                    if (open) {
+                        if (body.TryGetProperty("context", out var context)) await browser.OpenContext(ReaderContext.Parse(context));
+                        else await browser.ActivateAsync();
+                    } else await browser.Command("external.close", "");
                 } else {
                     if (type == "external.navigate") await SetOpen(true);
                     if (type == "external.close") await SetOpen(false);
                     await browser.Command(type, body.TryGetProperty("address", out var address) ? address.GetString() ?? "" : "");
                 }
-            } catch (Exception error) when (error is JsonException or InvalidOperationException or KeyNotFoundException or ObjectDisposedException) { }
+            } catch (Exception error) when (error is JsonException or InvalidOperationException or KeyNotFoundException or ObjectDisposedException or InvalidDataException) { }
         };
     }
     private async Task SetOpen(bool value)

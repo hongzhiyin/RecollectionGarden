@@ -28,6 +28,7 @@ internal static class DesktopVerification
             + "const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<p.length;i+=4)if(p[i]<180&&p[i+3])n++;return n>100;})()");
         await Wait("document.querySelector('.textLayer')?.textContent.includes('Selecting original text')===true");
         await Wait("(()=>{const r=document.querySelector('.reader-screen').getBoundingClientRect();return r.x===0&&r.y===0&&r.width===innerWidth&&r.height===innerHeight;})()");
+        if (Environment.GetEnvironmentVariable("RG_VERIFY_AI_PAIR") == "1") await DesktopPairVerification.Run(web, report);
         var fullWidth = web.Width;
         var browser = web.Parent?.Controls.OfType<BrowserPane>().Single()
             ?? throw new InvalidOperationException("Native AI surface is missing.");

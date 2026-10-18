@@ -23,6 +23,30 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
         with:
           dotnet-version: 10.0.x
+      - name: Checkout paired DreamEdge source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: hongzhiyin/DreamEdge
+          ref: 1df53b0f35f54dcf45e86d7666adf58b52aa562e
+          path: dreamedge
+          persist-credentials: false
+      - name: Build and test DreamEdge Windows launch
+        working-directory: dreamedge
+        run: |
+          npm ci
+          npm run check
+          npm run build
+          node --test dist/test/launch.test.js dist/test/launch-paths.test.js dist/test/launch-mcp.test.js dist/test/web-host.test.js
+      - name: Install matching ARM64 search binary
+        if: matrix.arch == 'arm64'
+        working-directory: dreamedge
+        run: npm install --no-save --package-lock=false --force @vscode/ripgrep-win32-arm64@1.18.0
+      - name: Package paired DreamEdge
+        working-directory: dreamedge
+        run: node dist/scripts/package-application.js --arch ${{ matrix.arch }}
+      - name: Check Windows AI launcher boundaries
+        if: matrix.arch == 'x64'
+        run: dotnet run --project desktop/windows/tests/WindowsLaunchChecks.csproj
       - run: npm ci
       - run: npm test
       - run: npm run build
@@ -41,12 +65,28 @@ jobs:
         run: |
           $version = node -p "require('./package.json').version"
           ./scripts/verify-windows.ps1 "releases/RecollectionGarden-$version-windows-x64"
+      - name: Verify packaged reader and DreamEdge end to end
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          ./scripts/verify-windows-pair.ps1 "releases/RecollectionGarden-$version-windows-x64" "dreamedge/release/DreamEdge-win32-x64"
+      - name: Archive paired DreamEdge
+        shell: pwsh
+        run: |
+          $version = node -p "require('./dreamedge/package.json').version"
+          $zip = "releases/DreamEdge-$version-windows-${{ matrix.arch }}.zip"
+          Compress-Archive -LiteralPath "dreamedge/release/DreamEdge-win32-${{ matrix.arch }}" -DestinationPath $zip -CompressionLevel Optimal
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          "$hash  $([System.IO.Path]::GetFileName($zip))" | Set-Content "$zip.sha256"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always() && matrix.arch == 'x64'
         with:
           retention-days: 7
           name: windows-native-verification
-          path: test-results/windows-native/
+          path: |
+            test-results/windows-native/
+            test-results/windows-pair/
           if-no-files-found: warn
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
