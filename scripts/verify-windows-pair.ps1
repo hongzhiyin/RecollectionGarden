@@ -40,5 +40,6 @@ try {
     Get-ChildItem (Join-Path $root 'reader') -Filter '*diagnostic*' | Copy-Item -Destination 'test-results/windows-pair'
     Get-ChildItem (Join-Path $root 'reader') -Filter 'native-events.jsonl' | Copy-Item -Destination 'test-results/windows-pair'
     Get-ChildItem (Join-Path $root 'ai') -Filter '*diagnostics.log' | Copy-Item -Destination 'test-results/windows-pair'
+    Get-ChildItem (Join-Path $root 'ai') -Filter '*diagnostics.json' | Copy-Item -Destination 'test-results/windows-pair'
     Remove-Item Env:RG_VERIFY_AI_PAIR -ErrorAction SilentlyContinue
 }
