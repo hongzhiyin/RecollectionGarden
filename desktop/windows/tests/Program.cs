@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.IO.Pipes;
+using System.Text;
 using RecollectionGarden;
 
 if (args.FirstOrDefault() == "fixture") {
@@ -23,6 +25,18 @@ using (var scoped = JsonDocument.Parse(JsonSerializer.Serialize(request))) {
     var declared = scoped.RootElement.GetProperty("mcp").GetProperty("transport").GetProperty("args").EnumerateArray().Select(value => value.GetString()).ToArray();
     Check(declared.Contains(context.Window) && declared.Contains(context.Resource), "Reader scope was not bound");
     Check(declared[^2] == "--data-dir" && declared[^1] == AppContext.BaseDirectory, "Explicit profile was not handed off");
+}
+// A Windows background process can retain stdout after its launcher exits. Require a full
+// JSON result, but never wait for pipe EOF; also exercise JSON split across separate reads.
+using (var writer = new AnonymousPipeServerStream(PipeDirection.Out))
+using (var input = new AnonymousPipeClientStream(PipeDirection.In, writer.GetClientHandleAsString()))
+using (var reader = new StreamReader(input))
+using (var deadline = new CancellationTokenSource(2000)) {
+    var reply = ExternalConversation.ReadBounded(reader, deadline.Token, true);
+    await writer.WriteAsync(Encoding.UTF8.GetBytes("{\"ok\":true,")); await writer.FlushAsync();
+    await Task.Delay(30); Check(!reply.IsCompleted, "Incomplete JSON was accepted");
+    await writer.WriteAsync(Encoding.UTF8.GetBytes("\"data\":{}}\n")); await writer.FlushAsync();
+    Check((await reply).Contains("data"), "Complete JSON waited for pipe EOF");
 }
 var uri = await ExternalConversation.Launch(entry, request, CancellationToken.None);
 Check(uri.IsLoopback && uri.Fragment == "#fixture", "Valid embedded handoff rejected");

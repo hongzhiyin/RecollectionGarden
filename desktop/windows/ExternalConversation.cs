@@ -44,11 +44,18 @@ internal sealed class ExternalConversation
         foreach (var argument in entry.Args) info.ArgumentList.Add(argument); info.ArgumentList.Add("open-session");
         using var child = Process.Start(info) ?? throw new InvalidOperationException("AI 启动入口不可执行。");
         try {
-            async Task<string> Capture(StreamReader reader) { try { return await ReadBounded(reader, token); } catch { timeout.Cancel(); throw; } }
-            var output = Capture(child.StandardOutput); var errors = Capture(child.StandardError);
+            using var errorLifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
+            async Task<string> Capture(StreamReader reader, bool reply) {
+                try { return await ReadBounded(reader, reply ? token : errorLifetime.Token, reply); }
+                catch (OperationCanceledException) when (!reply && child.HasExited) { return ""; }
+                catch { timeout.Cancel(); throw; }
+            }
+            var output = Capture(child.StandardOutput, true); var errors = Capture(child.StandardError, false);
             await child.StandardInput.WriteAsync(JsonSerializer.Serialize(request).AsMemory(), token); child.StandardInput.Close();
-            // Observe bounded readers together with exit so malformed or noisy launchers cannot block forever.
-            await Task.WhenAll(output, errors, child.WaitForExitAsync(token)).WaitAsync(token);
+            // A detached Windows backend may retain inherited pipe handles after the launcher exits.
+            // The protocol result is a complete JSON object; EOF is not a completion signal.
+            await Task.WhenAll(output, child.WaitForExitAsync(token)).WaitAsync(token);
+            errorLifetime.Cancel(); await errors;
             if (Environment.GetEnvironmentVariable("RG_VERIFY_AI_PAIR") == "1" && child.ExitCode != 0)
                 File.WriteAllText(Path.Combine(DesktopPaths.DataRoot, "ai-launch-diagnostic.json"), JsonSerializer.Serialize(new { child.ExitCode, output = await output, errors = await errors }));
             if (child.ExitCode != 0) throw new InvalidOperationException("AI 会话未打开，请检查配置后重试。");
@@ -68,10 +75,18 @@ internal sealed class ExternalConversation
             if (!child.HasExited) { child.Kill(true); await child.WaitForExitAsync(); }
         }
     }
-    private static async Task<string> ReadBounded(StreamReader reader, CancellationToken token)
+    internal static async Task<string> ReadBounded(StreamReader reader, CancellationToken token, bool reply)
     {
         var text = new StringBuilder(); var buffer = new char[4096];
         while (true) { var count = await reader.ReadAsync(buffer.AsMemory(), token); if (count == 0) return text.ToString();
-            if (text.Length + count > 65536) throw new InvalidDataException("AI 启动输出超过限制。"); text.Append(buffer, 0, count); }
+            if (text.Length + count > 65536) throw new InvalidDataException("AI 启动输出超过限制。"); text.Append(buffer, 0, count);
+            if (reply) {
+                try {
+                    using var document = JsonDocument.Parse(text.ToString());
+                    if (document.RootElement.ValueKind != JsonValueKind.Object) throw new InvalidDataException("AI 启动回复不是 JSON 对象。");
+                    return text.ToString();
+                } catch (JsonException) { /* A JSON object may span multiple pipe reads. */ }
+            }
+        }
     }
 }

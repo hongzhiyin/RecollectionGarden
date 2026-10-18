@@ -43,6 +43,7 @@ internal sealed class BrowserPane : UserControl
             web.CoreWebView2.Navigate(url.AbsoluteUri);
         } catch (OperationCanceledException) { if (current == generation) State("disconnected", "连接已取消或超时，可重试"); }
         catch (Exception error) when (error is IOException or InvalidOperationException or System.Text.Json.JsonException or System.ComponentModel.Win32Exception or KeyNotFoundException) {
+            if (web.CoreWebView2 is null) initialization = null;
             if (current == generation) State("error", "AI 会话打开失败，请检查入口、授权或服务后重试");
         } finally { if (ReferenceEquals(launching, lifetime)) launching = null; }
     }
@@ -89,10 +90,11 @@ internal sealed class BrowserPane : UserControl
             } catch { initialization = null; if (current == generation) State("error", "网页面板启动失败，请重试"); }
             return;
         }
+        if (action == "external.reload" && context is not null && conversation.Entry is not null) { await OpenContext(context); return; }
         if (web.CoreWebView2 is null) return;
         if (action == "external.back" && web.CanGoBack) web.GoBack();
         if (action == "external.forward" && web.CanGoForward) web.GoForward();
-        if (action == "external.reload") { if (context is not null && conversation.Entry is not null) await OpenContext(context); else web.Reload(); }
+        if (action == "external.reload") web.Reload();
         if (action == "external.browser" && web.Source is { } uri && Allowed(uri.AbsoluteUri))
             Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
     }
