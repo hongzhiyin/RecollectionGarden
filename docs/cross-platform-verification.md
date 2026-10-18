@@ -1,4 +1,28 @@
-# Mac / Windows 0.6.5 统一发布验收
+# 流光忆庭 0.7.3 / DreamEdge 0.0.2 Windows 配套验收
+
+2026-10-19。阅读器提交 `01496bf71c80c40ac5a33b5345007045b8891aca`，DreamEdge 提交 `ac2d7bb37307e9f98419425397a6ae6b31231d4f`。
+
+[本轮 CI](https://github.com/hongzhiyin/RecollectionGarden/actions/runs/39151768743) · [配套下载](https://github.com/hongzhiyin/RecollectionGarden/releases/tag/v0.7.3-preview.18)
+
+| 范围 | 结果 |
+| --- | --- |
+| Windows x64：DreamEdge 实际包打开对话页、使用独立资料区、提供正常退出菜单 | 通过 |
+| Windows x64：阅读器 PDF 导入、文本层、CLI / MCP 原有能力 | 通过 |
+| Windows x64：实际两端包的原生嵌入、绑定窗口上下文及当前页原文读取 | 通过 |
+| Windows x64：AI 发起翻页，阅读器实际到达第 2 页；设置开关保留会话 | 通过 |
+| Windows：入口解析、拒绝授权、取消、输出限制、JSON 分片及管道未关闭回归 | 通过 |
+| Windows ARM64：两端打包及 SHA-256 | 通过，原生运行待实机试用 |
+| macOS：阅读器打包、重定位、CLI / MCP 与阅读回归 | 通过 |
+
+联动测试使用合成 PDF、独立临时资料区和本地模型协议夹具，未使用个人 API Key 或书籍。原文读取与翻页均由实际 MCP 调用完成，未伪造阅读器状态；真实模型服务商与用户 Windows 设备仍需人工试用。
+
+修复了 Windows 后台进程保留管道句柄导致交接误超时的问题：读取完整 JSON 并确认启动器退出后完成交接，不等待后台关闭输出管道。仍保留取消、超时和输出大小限制。失败后的“重新加载”可以重新发起会话。
+
+截图与机器报告保存在本轮 CI 的 `windows-native-verification` 附件，飞书需求记录保留同版嵌入区截图。下载与配置步骤见 [Windows 体验版](windows-preview.md) 和发布页。
+
+---
+
+# 历史：Mac / Windows 0.6.5 统一发布验收
 
 2026-10-15。Desktop Release workflow 在同一提交上构建 Mac、Windows x64 / ARM64，全部平台构建与各自验收通过后统一发布。
 
