@@ -8,11 +8,13 @@ internal static class DesktopPairVerification
 {
     internal static async Task Run(WebView2 reader, string report)
     {
+        var configFile = Path.Combine(DesktopPaths.DataRoot, "external-ai-entry.json");
+        _ = ExternalAIEntry.Parse(File.ReadAllText(configFile), Path.GetDirectoryName(configFile)!);
         var pane = reader.Parent?.Controls.OfType<BrowserPane>().Single() ?? throw new InvalidOperationException("AI surface missing");
         static async Task Wait(WebView2 web, string expression)
         {
             for (var i = 0; i < 1200; i++) { if (web.CoreWebView2 is not null && await web.ExecuteScriptAsync(expression) == "true") return; await Task.Delay(100); }
-            var state = web.CoreWebView2 is null ? "No WebView" : await web.ExecuteScriptAsync("document.body.innerText.slice(-5000)");
+            var state = web.CoreWebView2 is null ? "No WebView" : await web.ExecuteScriptAsync("JSON.stringify({body:document.body.innerText.slice(-3000),aiStatus:document.querySelector('.ai-status')?.textContent,aiState:document.querySelector('.ai-status')?.dataset.status})");
             throw new TimeoutException("Pair verification failed: " + expression + " State: " + state);
         }
         await reader.ExecuteScriptAsync("document.querySelector('.reader-more').open=true;[...document.querySelectorAll('button')].find(e=>e.textContent==='外部对话').click()");

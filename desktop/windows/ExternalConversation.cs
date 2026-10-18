@@ -48,6 +48,8 @@ internal sealed class ExternalConversation
             await child.StandardInput.WriteAsync(JsonSerializer.Serialize(request).AsMemory(), token); child.StandardInput.Close();
             // Observe bounded readers together with exit so malformed or noisy launchers cannot block forever.
             await Task.WhenAll(output, errors, child.WaitForExitAsync(token)).WaitAsync(token);
+            if (Environment.GetEnvironmentVariable("RG_VERIFY_AI_PAIR") == "1" && child.ExitCode != 0)
+                File.WriteAllText(Path.Combine(DesktopPaths.DataRoot, "ai-launch-diagnostic.json"), JsonSerializer.Serialize(new { child.ExitCode, output = await output, errors = await errors }));
             if (child.ExitCode != 0) throw new InvalidOperationException("AI 会话未打开，请检查配置后重试。");
             using var reply = JsonDocument.Parse(await output); var root = reply.RootElement;
             if (!root.TryGetProperty("ok", out var ok) || ok.ValueKind != JsonValueKind.True)

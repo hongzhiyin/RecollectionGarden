@@ -29,6 +29,8 @@ internal sealed class ReaderWorkspace : UserControl
             try {
                 using var document = JsonDocument.Parse(e.WebMessageAsJson); var body = document.RootElement;
                 var type = body.GetProperty("type").GetString() ?? "";
+                if (Environment.GetEnvironmentVariable("RG_VERIFY_AI_PAIR") == "1" && type != "external.layout")
+                    File.AppendAllText(Path.Combine(DesktopPaths.DataRoot, "native-events.jsonl"), body.GetRawText() + "\n");
                 if (type == "external.layout") {
                     visible = body.TryGetProperty("visible", out var show) && show.ValueKind == JsonValueKind.True;
                     if (visible) {
@@ -50,7 +52,10 @@ internal sealed class ReaderWorkspace : UserControl
                     if (type == "external.close") await SetOpen(false);
                     await browser.Command(type, body.TryGetProperty("address", out var address) ? address.GetString() ?? "" : "");
                 }
-            } catch (Exception error) when (error is JsonException or InvalidOperationException or KeyNotFoundException or ObjectDisposedException or InvalidDataException) { }
+            } catch (Exception error) when (error is JsonException or InvalidOperationException or KeyNotFoundException or ObjectDisposedException or InvalidDataException) {
+                if (Environment.GetEnvironmentVariable("RG_VERIFY_AI_PAIR") == "1")
+                    File.AppendAllText(Path.Combine(DesktopPaths.DataRoot, "native-events.jsonl"), error.ToString() + "\n");
+            }
         };
     }
     private async Task SetOpen(bool value)

@@ -16,6 +16,7 @@ try {
     $env:RG_DESKTOP_DATA_DIR = $ready.readerProfile
     $env:DREAMEDGE_DATA_DIR = $ready.aiProfile
     $env:DREAMEDGE_NO_DIALOGS = '1'
+    $env:DREAMEDGE_LAUNCH_DIAGNOSTICS = '1'
     $env:RG_VERIFY_AI_PAIR = '1'
     $report = Join-Path $root 'native.json'
     $fixture = (Resolve-Path 'tests/fixtures/text-navigation.pdf').Path
@@ -36,5 +37,8 @@ try {
     if (!$fixtureHost.HasExited) { Stop-Process -Id $fixtureHost.Id -Force }
     New-Item -ItemType Directory -Force 'test-results/windows-pair' | Out-Null
     Get-ChildItem $root -File | Copy-Item -Destination 'test-results/windows-pair'
+    Get-ChildItem (Join-Path $root 'reader') -Filter '*diagnostic*' | Copy-Item -Destination 'test-results/windows-pair'
+    Get-ChildItem (Join-Path $root 'reader') -Filter 'native-events.jsonl' | Copy-Item -Destination 'test-results/windows-pair'
+    Get-ChildItem (Join-Path $root 'ai') -Filter '*diagnostics.log' | Copy-Item -Destination 'test-results/windows-pair'
     Remove-Item Env:RG_VERIFY_AI_PAIR -ErrorAction SilentlyContinue
 }
