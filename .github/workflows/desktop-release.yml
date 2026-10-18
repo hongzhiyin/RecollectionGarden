@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: hongzhiyin/DreamEdge
-          ref: 14b349d7ea64d068eea2bc70b2bd443e02d609e0
+          ref: 9cfbf991df181030a39649bc10d46800a0e8a2b0
           path: dreamedge
           persist-credentials: false
       - name: Build and test DreamEdge Windows launch
