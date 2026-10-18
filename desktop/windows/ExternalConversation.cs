@@ -60,6 +60,10 @@ internal sealed class ExternalConversation
                 || !(url.Scheme == "https" || (url.Scheme == "http" && url.IsLoopback)))
                 throw new InvalidDataException("AI 入口返回了无效的嵌入网址。");
             return url;
+        } catch (OperationCanceledException) {
+            if (Environment.GetEnvironmentVariable("RG_VERIFY_AI_PAIR") == "1")
+                File.WriteAllText(Path.Combine(DesktopPaths.DataRoot, "ai-timeout-diagnostic.json"), JsonSerializer.Serialize(new { child.Id, child.HasExited }));
+            throw;
         } finally {
             if (!child.HasExited) { child.Kill(true); await child.WaitForExitAsync(); }
         }
