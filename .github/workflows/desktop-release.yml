@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: hongzhiyin/DreamEdge
-          ref: 1df53b0f35f54dcf45e86d7666adf58b52aa562e
+          ref: 99bcbec4ba4a66e41b73876f93f8ce2b844ff1d0
           path: dreamedge
           persist-credentials: false
       - name: Build and test DreamEdge Windows launch
@@ -36,7 +36,7 @@ jobs:
           npm ci
           npm run check
           npm run build
-          node --test dist/test/launch.test.js dist/test/launch-paths.test.js dist/test/launch-mcp.test.js dist/test/web-host.test.js
+          node --test dist/test/launch.test.js dist/test/launch-paths.test.js dist/test/launch-mcp.test.js dist/test/web-host.test.js dist/test/package-policy.test.js
       - name: Install matching ARM64 search binary
         if: matrix.arch == 'arm64'
         working-directory: dreamedge

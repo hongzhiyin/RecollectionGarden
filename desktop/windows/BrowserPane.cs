@@ -34,7 +34,7 @@ internal sealed class BrowserPane : UserControl
     internal async Task OpenContext(ReaderContext next)
     {
         launching?.Cancel(); context = next;
-        if (conversation.Entry is null && !conversation.Configure(this)) { State("disconnected", "配置已取消，阅读不受影响"); return; }
+        if (conversation.Entry is null && !conversation.Configure((IWin32Window?)FindForm() ?? this)) { State("disconnected", "配置已取消，阅读不受影响"); return; }
         using var lifetime = new CancellationTokenSource(); launching = lifetime; var current = ++generation;
         State("connecting", "正在打开 AI 会话；首次连接请确认授权…");
         try {
@@ -73,10 +73,10 @@ internal sealed class BrowserPane : UserControl
     {
         if (action == "external.cancel" || action == "external.close") {
             generation++; launching?.Cancel(); acceptNavigation = false; web.Stop();
-            if (action == "external.close") { HasPage = false; web.CoreWebView2?.Navigate("about:blank"); }
+            if (action == "external.close") { context = null; HasPage = false; web.CoreWebView2?.Navigate("about:blank"); }
             State(HasPage ? "loaded" : "disconnected", "连接已停止，阅读位置保持"); return;
         }
-        if (action == "external.configure") { if (conversation.Configure(this) && context is not null) await OpenContext(context); else Report(); return; }
+        if (action == "external.configure") { if (conversation.Configure((IWin32Window?)FindForm() ?? this) && context is not null) await OpenContext(context); else Report(); return; }
         if (action == "external.navigate") {
             launching?.Cancel(); context = null; value = value.Trim();
             if (!Allowed(value)) { State("error", "请输入完整有效的 http 或 https 网址"); return; }
