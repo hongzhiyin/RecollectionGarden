@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { resolve } from 'node:path';
 // @ts-expect-error The provider CLI is a native ESM entry.
 import { mcpClientConfig } from '../../bridge/mcp-config.mjs';
 describe('portable MCP client configuration', () => {
@@ -10,7 +11,8 @@ describe('portable MCP client configuration', () => {
     expect(JSON.stringify(value)).not.toMatch(/token|DreamEdge|Codex/);
   });
   it('uses the bundled executable and entry for a relocated desktop package', () => {
-    expect(mcpClientConfig({ desktopEntry: '/relocated/app/entry.mjs', executable: '/relocated/runtime/node' }))
-      .toEqual({ mcpServers: { 'recollection-garden': { command: '/relocated/runtime/node', args: ['/relocated/app/entry.mjs', 'mcp'] } } });
+    const desktopEntry = resolve('relocated/app/entry.mjs'), executable = resolve('relocated/runtime/node');
+    expect(mcpClientConfig({ desktopEntry, executable }))
+      .toEqual({ mcpServers: { 'recollection-garden': { command: executable, args: [desktopEntry, 'mcp'] } } });
   });
 });
