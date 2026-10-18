@@ -25,7 +25,7 @@ try
     info.RedirectStandardInput = info.RedirectStandardOutput = info.RedirectStandardError = true;
     using var child = Process.Start(info) ?? throw new InvalidOperationException("内置 Node 无法启动。");
     using var inputLifetime = new CancellationTokenSource();
-    _ = ForwardInput(child, inputLifetime.Token);
+    _ = Task.Run(() => ForwardInput(child, inputLifetime.Token));
     var output = child.StandardOutput.BaseStream.CopyToAsync(Console.OpenStandardOutput());
     var errors = child.StandardError.BaseStream.CopyToAsync(Console.OpenStandardError());
     await child.WaitForExitAsync();

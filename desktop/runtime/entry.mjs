@@ -1,10 +1,16 @@
 import { homedir } from 'node:os';
-import { resolve } from 'node:path';
+import { isAbsolute, resolve } from 'node:path';
 
 const defaultDataDir = process.platform === 'win32'
   ? resolve(process.env.LOCALAPPDATA ?? resolve(homedir(), 'AppData/Local'), 'RecollectionGarden/Desktop')
   : resolve(homedir(), 'Library/Application Support/RecollectionGarden/Desktop');
-const dataDir = process.env.RG_DESKTOP_DATA_DIR ?? defaultDataDir;
+const profileIndex = process.argv.indexOf('--data-dir');
+const profile = profileIndex < 0 ? undefined : process.argv[profileIndex + 1];
+if (profileIndex >= 0 && (process.argv.filter(value => value === '--data-dir').length !== 1 || !profile || !isAbsolute(profile)))
+  throw new Error('--data-dir requires an absolute directory');
+if (profileIndex >= 0) process.argv.splice(profileIndex, 2);
+const dataDir = profile ?? process.env.RG_DESKTOP_DATA_DIR ?? defaultDataDir;
+if (profile) process.env.RG_BRIDGE_CONFIG = resolve(dataDir, 'bridge.json');
 process.env.RG_BRIDGE_CONFIG ??= resolve(dataDir, 'bridge.json');
 const mode = process.argv[2] ?? 'serve';
 if (mode === 'mcp-config') {

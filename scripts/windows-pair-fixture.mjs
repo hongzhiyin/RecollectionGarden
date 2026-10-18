@@ -49,10 +49,11 @@ const config = { id: 'windows-pair', protocol: 'openai-completions', baseUrl, mo
   reasoning: { supportedLevels: ['off', 'high'], format: 'deepseek' }, toolCalling: { supported: true, supportedThinkingLevels: ['off', 'high'] } };
 await writeFile(join(aiProfile, 'connection.local.json'), JSON.stringify(config));
 await writeFile(join(aiProfile, 'credentials.local.json'), JSON.stringify({ fixture: 'test-only' }));
-const cli = join(readerPackage, 'recollection-garden.exe');
+const cli = join(readerPackage, 'Resources', 'runtime', 'node.exe');
+const mcpEntry = join(readerPackage, 'Resources', 'app', 'desktop', 'runtime', 'entry.mjs');
 await writeFile(join(aiProfile, 'application-policies.json'), JSON.stringify({ format: 'ai-application-policies/v1', applications: [{
   applicationId: 'com.chihoyo.RecollectionGarden', profile: 'desktop-default', command: cli,
-  args: ['mcp', '--window', { context: 'window' }, '--book', { context: 'resource' }, '--data-dir', readerProfile],
+  args: [mcpEntry, 'mcp', '--window', { context: 'window' }, '--book', { context: 'resource' }, '--data-dir', readerProfile],
   readTools: ['rg_context_get', 'rg_page_read', 'rg_outline_get'], interactionTools: ['rg_reader_navigate', 'rg_outline_navigate'],
   destination: { connectionId: config.id, protocol: config.protocol, baseUrl: new URL(baseUrl).href, model: config.model }
 }] }));

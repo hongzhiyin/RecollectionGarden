@@ -43,11 +43,11 @@ internal sealed record ReaderContext(string Window, string Resource, string Titl
         var title = value.TryGetProperty("title", out var name) ? name.GetString() ?? "当前书籍" : "当前书籍";
         return new(window, resource, title[..Math.Min(title.Length, 180)]);
     }
-    internal object Request(string mcpCommand, string? dataDirectory = null) => new {
+    internal object Request(string mcpCommand, string? dataDirectory = null, string? entryPoint = null) => new {
         protocol = "ai-session-launch/v1", operation = "open-session", requestId = Guid.NewGuid().ToString(),
         application = new { id = "com.chihoyo.RecollectionGarden", name = "流光忆庭", profile = "desktop-default" },
         context = new { window = Window, resource = Resource },
-        mcp = new { transport = new { type = "stdio", command = mcpCommand, args = new[] { "mcp", "--window", Window, "--book", Resource }.Concat(dataDirectory is null ? [] : new[] { "--data-dir", dataDirectory }).ToArray() },
+        mcp = new { transport = new { type = "stdio", command = mcpCommand, args = (entryPoint is null ? Array.Empty<string>() : new[] { entryPoint }).Concat(new[] { "mcp", "--window", Window, "--book", Resource }).Concat(dataDirectory is null ? [] : new[] { "--data-dir", dataDirectory }).ToArray() },
             scope = "当前阅读窗口中的内容、目录读取与阅读导航：" + Title,
             readTools = new[] { "rg_context_get", "rg_page_read", "rg_outline_get" },
             interactionTools = new[] { "rg_reader_navigate", "rg_outline_navigate" } }

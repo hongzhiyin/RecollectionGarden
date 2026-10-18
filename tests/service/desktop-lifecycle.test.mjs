@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
@@ -10,8 +10,8 @@ import { setTimeout } from 'node:timers/promises';
 test('桌面父进程断开后关闭服务，随后可以使用原端口重启', { timeout: 15000 }, async () => {
   const folder = await mkdtemp(join(tmpdir(), 'rg-lifecycle-'));
   const children = [];
-  const launch = async (port = 0) => {
-    const child = spawn(process.execPath, ['desktop/runtime/entry.mjs', 'serve'], {
+  const launch = async (port = 0, profile) => {
+    const child = spawn(process.execPath, ['desktop/runtime/entry.mjs', 'serve', ...(profile ? ['--data-dir', profile] : [])], {
       env: { ...process.env, RG_BRIDGE_CONFIG: join(folder, 'bridge.json'), RG_DESKTOP_MANAGED: '1',
         RG_DESKTOP_UI_PORT: String(port), RG_DESKTOP_BRIDGE_PORT: '0' },
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -39,6 +39,12 @@ test('桌面父进程断开后关闭服务，随后可以使用原端口重启',
     if (process.platform === 'win32') second.child.stdin.end();
     else second.child.kill('SIGTERM');
     assert.equal((await second.child.exited)[0], 0);
+    const before = await readFile(join(folder, 'bridge.json'), 'utf8');
+    const profile = join(folder, 'profile with spaces');
+    const third = await launch(0, profile);
+    assert.ok(JSON.parse(await readFile(join(profile, 'bridge.json'), 'utf8')).port > 0);
+    assert.equal(await readFile(join(folder, 'bridge.json'), 'utf8'), before);
+    third.child.stdin.end(); assert.equal((await third.child.exited)[0], 0);
   } finally {
     for (const child of children) {
       if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
