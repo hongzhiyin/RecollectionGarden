@@ -7,7 +7,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 export async function verifyPackagedMcp(cli, title, reportPath) {
   const help = JSON.parse(execFileSync(cli, ['help'], { encoding:'utf8', cwd:tmpdir() }));
-  assert.equal(help.ok, true); assert.equal(help.data.operations.length, 23);
+  assert.equal(help.ok, true); assert.equal(help.data.operations.length, 25);
   const client = new Client({ name:'desktop-packaged-smoke', version:'1.0.0' }, {capabilities:{}});
   assert.ok(process.env.RG_DESKTOP_DATA_DIR, 'Native smoke test requires its isolated data directory.');
   const transport = new StdioClientTransport({ command:cli, args:['mcp'], cwd:tmpdir(), stderr:'pipe',

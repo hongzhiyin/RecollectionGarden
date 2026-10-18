@@ -27,7 +27,7 @@ try {
   execFileSync('/usr/bin/codesign', ['--verify', '--deep', '--strict', app], { stdio: 'inherit' });
   const cli = join(app, 'Contents/MacOS/recollection-garden');
   const help = JSON.parse(execFileSync('/usr/bin/env', ['-i', 'PATH=/usr/bin:/bin', cli, 'help'], { encoding: 'utf8', cwd: tmpdir() }));
-  assert.equal(help.ok, true); assert.equal(help.data.operations.length, 23);
+  assert.equal(help.ok, true); assert.equal(help.data.operations.length, 25);
   process.env.RG_DESKTOP_DATA_DIR = profile;
   child = spawn(cli, ['serve'], { cwd: tmpdir(), env: { ...process.env,
     RG_DESKTOP_UI_PORT: '0', RG_DESKTOP_BRIDGE_PORT: '0', RG_DESKTOP_MANAGED: '1' }, stdio: ['pipe','pipe','pipe'] });
